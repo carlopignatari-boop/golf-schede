@@ -708,6 +708,8 @@ window.addEventListener('hashchange', () => location.reload());
     const buf = new Uint8Array(await rb.arrayBuffer());
     const key = await crypto.subtle.importKey('raw', un(k), 'AES-GCM', false, ['decrypt']);
     const D = JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: buf.slice(0, 12) }, key, buf.slice(12))));
+    const num = v => v == null || v === '' ? null : (isNaN(+String(v).replace(',', '.')) ? null : +String(v).replace(',', '.'));
+    (D.gare || []).forEach(g => ['stbl', 'ags', 'pcc', 'sd', 'sd_est', 'cr', 'sr', 'idxN', 'idxV', 'var'].forEach(k => { if (k in g) g[k] = num(g[k]); }));
     D.campi = rc.ok ? await rc.json() : [];
     document.title = 'Golf · ' + D.giocatore.nome.split(' ')[0];
     $('gate').hidden = true; $('app').hidden = false; init(D);
