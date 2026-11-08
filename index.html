@@ -298,6 +298,7 @@ nav.tabs button.on{color:var(--green)}
   <!-- ═════ SIMULA ═════ -->
   <section class="view" id="v-simula">
     <h2 class="v-h">Simula la gara di oggi</h2>
+    <div class="warn" id="simStorico" hidden></div>
     <div class="camp"><span><small>Hai giocato a</small><span id="simCampo"></span></span><button class="btn" id="simCambia">Cambia</button></div>
 
     <div class="card">
@@ -619,6 +620,9 @@ function controlliPunti(P, r) {
   if (D.gare.some(g => g.data === oggiIt() && !g.pending && g.sd != null)) w.push('Per oggi c’è già il risultato ufficiale: la simulazione non serve.');
   return w;
 }
+// storico incompleto (gare giocate in circoli non raccolti): la simulazione resta, ma è indicativa
+const INDICATIVA = !!(D.storico && D.storico.completo === false);
+if (INDICATIVA) { $('simStorico').hidden = false; $('simStorico').innerHTML = `<b>Stima indicativa.</b> Il tuo index ufficiale è ${f1(D.storico.ufficiale)}, ma dalle gare che vediamo verrebbe ${f1(D.storico.calcolato)}: mancano probabilmente gare giocate in altri circoli. Il risultato può essere diverso di qualche decimo.`; }
 function aggiornaPunti() {
   const P = parseInt($('ptVal').value, 10), r = daPunti(P);
   if (r.nove) { $('ptRes').innerHTML = 'Per i campi da 9 buche la simulazione non è ancora disponibile.'; $('ptWarn').hidden = true; $('ptSalva').disabled = true; return; }
@@ -686,10 +690,10 @@ $('fileFoto').onchange = async ev => {
 };
 mostraScore(scIdx);
 function mostraSimOggi() { if (!SIM) { return; }
-  msg($('pend'), `Simulazione di oggi: index ${f1(SIM.idxN)}`, `${SIM.solo_punti ? SIM.stbl + ' punti' : 'Score buca per buca'} a ${nomeBreve(SIM.circolo)}: differenziale ${f1(SIM.sd)}. È una stima (senza la correzione del giorno, PCC): resta finché non arriva il risultato ufficiale. <button class="lnk" style="display:inline;margin:0" id="simDel2">Cancella</button>`);
+  msg($('pend'), `Simulazione di oggi: index ${f1(SIM.idxN)}`, `${SIM.solo_punti ? SIM.stbl + ' punti' : 'Score buca per buca'} a ${nomeBreve(SIM.circolo)}: differenziale ${f1(SIM.sd)}. ${INDICATIVA ? 'È una stima indicativa: mancano gare giocate in altri circoli' : 'È una stima (senza la correzione del giorno, PCC)'}: resta finché non arriva il risultato ufficiale. <button class="lnk" style="display:inline;margin:0" id="simDel2">Cancella</button>`);
   const d2 = $('simDel2'); if (d2) d2.onclick = () => { SIM = null; try { LS.removeItem('golfpers.sim'); } catch (e) {} $('pend').hidden = true; pick(); }; }
 mostraSimOggi();
-if (D.fonte === 'gesgolf') $('idxWhen').textContent = `all'ultima gara a Modena del ${ult.d.slice(0, 5)} · dalle classifiche GesGolf`;
+if (D.fonte === 'gesgolf') $('idxWhen').textContent = `all'ultima gara del ${ult.d.slice(0, 5)} · dalle classifiche GesGolf`;
 }
 
 // ── apertura: link personale → file cifrato → scheda ──
