@@ -536,7 +536,7 @@ function mostraScore(i, sim) {
     if (vuote.length < sc.length && P > 45) w.push(`${P} punti è un risultato eccezionale: controlla i colpi.`);
     $('simTxt').innerHTML = 'Tocca un numero per correggerlo. Quando arriva il risultato ufficiale, prende il suo posto.' + (w.length ? `<div class="warn">${w.join('<br>')}</div>` : '');
   }
-  $('scTots').innerHTML = [['Punti', S(sc, pt)], ['Colpi', S(sc, h => h.c)], ['Differenziale', f1(g.sd ?? g.sd_est)], ['Nuovo index', f1(g.idxN)]]
+  $('scTots').innerHTML = [['Punti', S(sc, pt)], ['Colpi', S(sc, h => h.c)], ['Differenziale', f1(g.sd ?? g.sd_est)], ['Nuovo index', f1(g.idxN)]].concat(g.chN != null ? [['Nuovo handicap di gioco', g.chN]] : [])
     .map(([l, v]) => `<div class="card"><div class="label">${l}</div><div class="mid num">${v}</div></div>`).join('');
   const row = h => `<div class="hb-r"><span class="b">${h.b}</span><span>${h.p}</span><span>${sim ? `<button class="k edit ${cl(h)}${(g.incerte || []).includes(h.b) ? ' dub' : ''}" data-b="${h.b}">${h.c ?? '–'}</button>` : `<span class="k ${cl(h)}">${h.c ?? '–'}</span>`}</span><span class="pt">${h.c == null ? '–' : pt(h)}</span></div>`;
   const tot = (l, a) => `<div class="hb-r t"><span class="b">${l}</span><span>${S(a, h => h.p)}</span><span>${S(a, h => h.c)}</span><span class="pt">${S(a, pt)}</span></div>`;
@@ -584,10 +584,12 @@ function campoSim() { const c = trova(campo), tees = c.tee.filter(t => t.s === D
 let mostraCampoSim = function () { const { c, t } = campoSim(); $('simCampo').textContent = `${nomeBreve(c.sigla || c.circolo)}${c.percorso ? ' · ' + c.percorso : ''} · ${t.c.toLowerCase()}`; };
 mostraCampoSim(); $('simCambia').onclick = () => { apri(); };
 const _ok = $('btnOk').onclick; $('btnOk').onclick = () => { _ok(); mostraCampoSim(); };
+// handicap di gioco con un index dato, sul campo della simulazione (di solito Modena)
+function chCon(index) { const { c, t } = campoSim(); return c.buche === 9 ? null : Math.round(index * t.sr / 113 + t.cr - c.par); }
 function ricalcolaSim() {
   const { sc, rec } = calc(SIM);
   SIM.ags = sc.reduce((a, h) => a + (h.c ? Math.min(h.c, h.p + 2 + rec(h)) : h.p + 2 + rec(h)), 0);
-  SIM.sd = r1((SIM.ags - SIM.cr - (SIM.pcc || 0)) * 113 / SIM.sr); SIM.idxN = nuovoIdx(SIM.sd);
+  SIM.sd = r1((SIM.ags - SIM.cr - (SIM.pcc || 0)) * 113 / SIM.sr); SIM.idxN = nuovoIdx(SIM.sd); SIM.chN = chCon(SIM.idxN);
   try { LS.setItem('golfpers.sim', JSON.stringify(SIM)); } catch (e) {}
 }
 function nuovaSim(buche, extra = {}) {
@@ -608,7 +610,8 @@ function daPunti(P) {
   const ch = nove ? Math.round(idx / 2 * t.sr / 113 + t.cr - c.par) : Math.round(idx * t.sr / 113 + t.cr - c.par);
   if (nove) return { c, t, ch, nove };
   const ags = c.par + ch + 36 - P, sd = r1((ags - t.cr) * 113 / t.sr);
-  return { c, t, ch, ags, sd, idxN: nuovoIdx(sd) };
+  const idxN = nuovoIdx(sd);
+  return { c, t, ch, ags, sd, idxN, chN: chCon(idxN) };
 }
 function controlliPunti(P, r) {
   const w = [];
@@ -631,6 +634,7 @@ function aggiornaPunti() {
   const dv = bad ? 0 : r1(r.idxN - idx);
   $('ptRes').innerHTML = bad ? '—' : `<div class="r"><span>Handicap di gioco</span><b>${r.ch}</b></div><div class="r"><span>Differenziale</span><b>${f1(r.sd)}</b></div>
     <div class="r"><span>Nuovo index</span><b style="color:${dv < 0 ? 'var(--green)' : dv > 0 ? 'var(--warm)' : 'var(--text)'}">${f1(r.idxN)}</b></div>
+    <div class="r"><span>Nuovo handicap di gioco a ${nomeBreve(r.c.sigla || r.c.circolo)}</span><b>${r.chN}${r.chN !== r.ch ? ` <small style="font-weight:400;color:var(--muted)">(era ${r.ch})</small>` : ''}</b></div>
     <div class="sub" style="margin-top:4px">${dv < 0 ? 'scendi di ' + f1(-dv) : dv > 0 ? 'sali di ' + f1(dv) : 'resta uguale'} · 36 punti = hai giocato secondo il tuo handicap</div>`;
   $('ptWarn').hidden = !w.length; $('ptWarn').innerHTML = w.join('<br>');
 }
@@ -639,7 +643,7 @@ $('ptPiu').onclick = () => { $('ptVal').value = Math.min(72, (parseInt($('ptVal'
 $('ptVal').oninput = aggiornaPunti;
 $('ptSalva').onclick = () => {
   const P = parseInt($('ptVal').value, 10), r = daPunti(P);
-  SIM = { data: oggiIt(), gara: 'Gara di oggi', circolo: r.c.sigla || r.c.circolo, solo_punti: true, stbl: P, ags: r.ags, sd: r.sd, idxN: r.idxN, idxV: idx, cr: r.t.cr, sr: r.t.sr };
+  SIM = { data: oggiIt(), gara: 'Gara di oggi', circolo: r.c.sigla || r.c.circolo, solo_punti: true, stbl: P, ags: r.ags, sd: r.sd, idxN: r.idxN, chN: r.chN, idxV: idx, cr: r.t.cr, sr: r.t.sr };
   try { LS.setItem('golfpers.sim', JSON.stringify(SIM)); } catch (e) {}
   pick(); mostraSimOggi(); vai('oggi');
 };
@@ -690,7 +694,7 @@ $('fileFoto').onchange = async ev => {
 };
 mostraScore(scIdx);
 function mostraSimOggi() { if (!SIM) { return; }
-  msg($('pend'), `Simulazione di oggi: index ${f1(SIM.idxN)}`, `${SIM.solo_punti ? SIM.stbl + ' punti' : 'Score buca per buca'} a ${nomeBreve(SIM.circolo)}: differenziale ${f1(SIM.sd)}. ${INDICATIVA ? 'È una stima indicativa: mancano gare giocate in altri circoli' : 'È una stima (senza la correzione del giorno, PCC)'}: resta finché non arriva il risultato ufficiale. <button class="lnk" style="display:inline;margin:0" id="simDel2">Cancella</button>`);
+  msg($('pend'), `Simulazione di oggi: index ${f1(SIM.idxN)}${SIM.chN != null ? ' · handicap di gioco ' + SIM.chN : ''}`, `${SIM.solo_punti ? SIM.stbl + ' punti' : 'Score buca per buca'} a ${nomeBreve(SIM.circolo)}: differenziale ${f1(SIM.sd)}. ${INDICATIVA ? 'È una stima indicativa: mancano gare giocate in altri circoli' : 'È una stima (senza la correzione del giorno, PCC)'}: resta finché non arriva il risultato ufficiale. <button class="lnk" style="display:inline;margin:0" id="simDel2">Cancella</button>`);
   const d2 = $('simDel2'); if (d2) d2.onclick = () => { SIM = null; try { LS.removeItem('golfpers.sim'); } catch (e) {} $('pend').hidden = true; pick(); }; }
 mostraSimOggi();
 if (D.fonte === 'gesgolf') $('idxWhen').textContent = `all'ultima gara del ${ult.d.slice(0, 5)} · dalle classifiche GesGolf`;
