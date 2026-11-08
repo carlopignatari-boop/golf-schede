@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>Il mio golf</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Il mio golf">
+<meta name="theme-color" content="#0c110f">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0c110f;--surface:#141b18;--elev:#1b2420;--line:#26322c;
+  --text:#e7ede9;--muted:#8d9a93;--faint:#5f6c65;
+  --green:#7cc59b;--green-d:#2f5a43;--gold:#e2bf63;--warm:#ef8a6b;--blue:#86b4e8;
+  --r:16px;--r-s:10px;
+  --font:'General Sans','Segoe UI',system-ui,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none!important}
+html,body{background:var(--bg)}
+body{font-family:var(--font);color:var(--text);font-size:17px;line-height:1.45;-webkit-font-smoothing:antialiased;
+  min-height:100dvh;padding-bottom:calc(104px + env(safe-area-inset-bottom))}
+.num,.big{font-variant-numeric:tabular-nums}
+.app{max-width:460px;margin:0 auto;padding:18px 16px 8px}
+header.top{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px}
+.hello{font-size:15px;color:var(--muted)}
+.name{font-size:22px;font-weight:600;letter-spacing:-.01em}
+.upd{font-size:13px;color:var(--faint);text-align:right;line-height:1.3}
+.draft{display:inline-block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--gold);
+  border:1px solid color-mix(in srgb,var(--gold) 40%,transparent);border-radius:99px;padding:2px 8px;margin-bottom:4px}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:16px;margin-bottom:12px}
+.label{font-size:14px;font-weight:500;color:var(--muted);letter-spacing:.02em}
+.sub{font-size:15px;color:var(--muted)}
+
+/* hero index */
+.hero{padding:20px 18px 16px;background:linear-gradient(160deg,#16231d 0%,var(--surface) 70%)}
+.hero-row{display:flex;align-items:flex-end;gap:12px;margin:4px 0 6px}
+.big{font-size:64px;font-weight:600;line-height:1;letter-spacing:-.03em}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:13px;font-weight:600;border-radius:99px;padding:3px 10px;margin-bottom:8px}
+.chip.up{color:var(--warm);background:color-mix(in srgb,var(--warm) 14%,transparent)}
+.chip.down{color:var(--green);background:color-mix(in srgb,var(--green) 14%,transparent)}
+.chip.same{color:var(--muted);background:var(--elev)}
+.spark{display:block;width:100%;height:46px;margin-top:12px}
+.msg{margin-top:14px;padding:14px;border-radius:12px;background:var(--elev);border:1px solid var(--line)}
+.msg.info{background:color-mix(in srgb,var(--blue) 10%,var(--surface));border-color:color-mix(in srgb,var(--blue) 30%,transparent)}
+.msg-h{display:flex;justify-content:space-between;align-items:center;gap:10px;font-size:18px;font-weight:600;line-height:1.3}
+.why{flex:none;font:inherit;font-size:15px;font-weight:600;color:var(--blue);background:none;border:0;padding:6px 0 6px 8px;cursor:pointer}
+.msg-d{display:none;margin-top:8px;font-size:16px;line-height:1.5;color:#c7d1cb}
+.msg.open .msg-d{display:block}
+.pending{margin-top:12px;padding:10px 12px;border-radius:var(--r-s);background:color-mix(in srgb,var(--blue) 9%,transparent);
+  border:1px solid color-mix(in srgb,var(--blue) 28%,transparent);font-size:13px;color:#c9dcf3}
+
+/* handicap di gioco */
+.ph{display:flex;justify-content:space-between;align-items:center;gap:12px}
+.ph-num{font-size:44px;font-weight:600;line-height:1;letter-spacing:-.02em}
+.ph-where{font-size:16px;font-weight:500;margin-top:6px}
+.ph-where small{display:block;font-size:14px;color:var(--muted);font-weight:400}
+.btn{font:inherit;font-size:16px;font-weight:600;border-radius:99px;padding:11px 16px;border:1px solid var(--line);background:var(--elev);color:var(--text);cursor:pointer;white-space:nowrap}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--green);border-color:var(--green);color:#0c110f}
+.tees{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
+.tee{display:flex;align-items:center;gap:6px;font-size:15px;padding:8px 12px;border-radius:99px;background:var(--elev);border:1px solid var(--line);cursor:pointer;color:var(--text)}
+.tee.on{border-color:var(--green);color:var(--green)}
+.dot{width:10px;height:10px;border-radius:50%;border:1px solid #0005;flex:none}
+
+/* griglia */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.grid .card{margin:0;padding:14px}
+.mid{font-size:28px;font-weight:600;letter-spacing:-.02em;margin-top:2px}
+.mid small{font-size:14px;color:var(--muted);font-weight:500}
+
+/* prossima gara */
+.next b{color:var(--green);font-weight:600}
+.next p{margin-top:6px;font-size:17px}
+.next .out{margin-top:10px;padding-top:10px;border-top:1px solid var(--line);font-size:15px;color:var(--muted)}
+
+/* lista gare */
+.sec-title{font-size:15px;color:var(--muted);margin:18px 2px 8px;display:flex;justify-content:space-between}
+.race{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);margin-bottom:8px;overflow:hidden}
+.race-h{display:grid;grid-template-columns:44px 1fr auto;gap:10px;align-items:center;padding:12px 14px;cursor:pointer;width:100%;background:none;border:0;color:inherit;font:inherit;text-align:left}
+.race-d{font-size:14px;color:var(--muted);line-height:1.2;text-align:center}
+.race-d b{display:block;font-size:17px;color:var(--text);font-weight:600}
+.race-n{font-size:16px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.race-n small{display:block;font-size:14px;color:var(--muted);font-weight:400}
+.race-r{text-align:right;font-size:14px;color:var(--muted);line-height:1.25}
+.race-r b{display:block;font-size:19px;color:var(--text);font-weight:600}
+.race.top8 .race-r b{color:var(--gold)}
+.badge{display:inline-block;font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;border-radius:6px;padding:1px 6px;margin-left:4px;vertical-align:1px}
+.badge.g{background:color-mix(in srgb,var(--gold) 16%,transparent);color:var(--gold)}
+.badge.p{background:color-mix(in srgb,var(--blue) 16%,transparent);color:var(--blue)}
+.race-b{display:none;padding:0 14px 14px}
+.race.open .race-b{display:block}
+.sc{display:grid;grid-template-columns:repeat(9,1fr);gap:4px;margin-top:6px}
+.sc div{text-align:center;font-size:12px;border-radius:8px;padding:5px 0;background:var(--elev)}
+.sc .h{background:none;color:var(--faint);font-size:11px;padding:0}
+.sc .c{font-weight:600;font-size:14px}
+.c.bi{background:color-mix(in srgb,var(--green) 30%,var(--elev));color:#d9f5e4}
+.c.pa{background:var(--elev)}
+.c.bo{background:color-mix(in srgb,var(--blue) 18%,var(--elev))}
+.c.db{background:color-mix(in srgb,var(--warm) 26%,var(--elev))}
+.c.x{background:none;color:var(--faint)}
+.sc-tot{display:flex;justify-content:space-between;font-size:13px;color:var(--muted);margin-top:10px}
+.sc-tot b{color:var(--text)}
+.race-b a{color:var(--blue);font-size:13px;text-decoration:none}
+
+/* nuova gara */
+.photo{display:flex;flex-direction:column;align-items:center;text-align:center;padding:28px 18px}
+.photo svg{margin-bottom:10px}
+.photo h2{font-size:18px;font-weight:600;margin-bottom:6px}
+.photo p{font-size:16px;color:var(--muted);margin-bottom:16px;max-width:30ch}
+
+/* tab bar */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(12px);
+  border-top:1px solid var(--line);padding:8px 0 calc(8px + env(safe-area-inset-bottom))}
+nav.tabs .in{max-width:460px;margin:0 auto;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:0 8px}
+nav.tabs button{background:none;border:0;color:var(--muted);font:inherit;font-size:14px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 2px;border-radius:14px;cursor:pointer}
+nav.tabs button svg{width:26px;height:26px}
+nav.tabs button.on{background:color-mix(in srgb,var(--green) 14%,transparent)}
+nav.tabs button.cam{color:var(--green)}
+.cam-i{display:grid;place-items:center;width:44px;height:44px;margin-top:-18px;border-radius:50%;background:var(--green);color:#0c110f;box-shadow:0 0 0 4px var(--bg)}
+nav.tabs button.cam svg{width:24px;height:24px}
+nav.tabs button.cam.on{background:none}
+.cta{display:flex;align-items:center;gap:14px;width:100%;text-align:left;font:inherit;color:#0c110f;background:var(--green);border:0;border-radius:var(--r);padding:16px;margin-bottom:12px;cursor:pointer}
+.cta b{display:block;font-size:19px;font-weight:600}
+.cta span span{font-size:15px;opacity:.8}
+.cta .ic{flex:none;display:grid;place-items:center;width:52px;height:52px;border-radius:50%;background:#0c110f22}
+.steps{list-style:none;counter-reset:st;margin:6px 0 20px;text-align:left;width:100%}
+.steps li{counter-increment:st;display:flex;gap:12px;align-items:flex-start;font-size:17px;padding:10px 0;border-bottom:1px solid var(--line)}
+.steps li:last-child{border-bottom:0}
+.steps li::before{content:counter(st);flex:none;display:grid;place-items:center;width:32px;height:32px;border-radius:50%;background:var(--elev);border:1px solid var(--line);font-weight:600;color:var(--green)}
+.steps small{display:block;font-size:15px;color:var(--muted)}
+.btn.xl{width:100%;font-size:19px;padding:16px;display:flex;align-items:center;justify-content:center;gap:10px}
+.simbar{display:none;margin-bottom:12px;padding:14px;border-radius:var(--r);background:color-mix(in srgb,var(--gold) 12%,var(--surface));border:1px solid color-mix(in srgb,var(--gold) 40%,transparent)}
+.simbar b{display:block;font-size:18px;color:var(--gold)}
+.simbar span{font-size:15px;color:#d8d2bd}
+.sim .simbar{display:block}
+nav.tabs button.on{color:var(--green)}
+.sc-title{font-size:22px;font-weight:600;line-height:1.2;margin-top:4px}
+.sc-pick{margin-top:12px;width:100%;font:inherit;font-size:16px;color:var(--text);background:var(--elev);border:1px solid var(--line);border-radius:12px;padding:11px 12px}
+.sc-tots .card{text-align:center}
+.rot{display:flex;align-items:center;gap:14px;width:100%;text-align:left;font:inherit;font-size:17px;font-weight:600;color:var(--green);background:color-mix(in srgb,var(--green) 10%,var(--surface));border:1px solid color-mix(in srgb,var(--green) 35%,transparent);border-radius:var(--r);padding:14px 16px;margin-bottom:12px;cursor:pointer}
+.rot small{display:block;font-size:14px;font-weight:500;color:var(--muted)}
+.hb{padding:6px 0}
+.hb-r{display:grid;grid-template-columns:64px 1fr 1fr 1fr;align-items:center;text-align:center;font-size:19px;padding:9px 12px;border-bottom:1px solid var(--line)}
+.hb-r:last-child{border-bottom:0}
+.hb-r.h{font-size:14px;color:var(--muted);font-weight:500;padding:6px 12px}
+.hb-r.t{background:var(--elev);font-weight:600}
+.hb-r .b{font-weight:600;text-align:left}
+.hb-r .k{display:inline-block;min-width:42px;border-radius:10px;padding:3px 0;font-weight:600}
+.k.ea{background:#3f8f5d;color:#fff}.k.bi{background:color-mix(in srgb,var(--green) 35%,transparent)}.k.bo{background:color-mix(in srgb,var(--blue) 18%,transparent)}.k.db{background:color-mix(in srgb,var(--warm) 28%,transparent)}.k.tr{background:color-mix(in srgb,var(--warm) 50%,transparent)}
+.hb-r .pt{color:var(--green);font-weight:600}
+.cart.land .cart-in{width:100vw!important;height:100dvh!important;transform:none!important}
+.gate{min-height:100dvh;display:grid;place-items:center;text-align:center;padding:24px}
+.gate h1{font-size:26px;font-weight:600;margin:12px 0 8px}.gate p{font-size:18px;color:var(--muted);max-width:28ch;margin:0 auto}
+.fonte{font-size:15px;color:var(--muted);margin-top:4px}
+.k.edit{border:1px dashed color-mix(in srgb,var(--gold) 60%,transparent);min-width:48px;cursor:pointer;font:inherit;font-weight:600;color:var(--text)}
+.k.edit.dub{border:2px solid var(--gold)}
+.busy{display:none;margin-top:16px;font-size:17px;color:var(--gold)}
+.camp{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:left;margin:0 0 18px;padding:12px 14px;border-radius:12px;background:var(--elev);border:1px solid var(--line);font-size:16px}
+.camp small{display:block;color:var(--muted);font-size:14px}
+.view{display:none}.view.on{display:block}
+
+/* foglio scelta campo */
+.sheet-bg{position:fixed;inset:0;background:#000a;display:none;z-index:20}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:21;background:var(--surface);border-top-left-radius:22px;border-top-right-radius:22px;
+  border-top:1px solid var(--line);padding:10px 16px calc(18px + env(safe-area-inset-bottom));transform:translateY(105%);visibility:hidden;transition:transform .25s ease,visibility .25s;max-height:86dvh;overflow:auto}
+.sheet .in{max-width:460px;margin:0 auto}
+.sheet.on{transform:none;visibility:visible}.sheet-bg.on{display:block}
+.grab{width:40px;height:4px;border-radius:4px;background:var(--line);margin:0 auto 14px}
+.sheet h3{font-size:17px;font-weight:600;margin-bottom:12px}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:5px}
+.field input,.field select{width:100%;font:inherit;font-size:15px;color:var(--text);background:var(--elev);border:1px solid var(--line);border-radius:12px;padding:11px 12px;appearance:none}
+.field input:focus,.field select:focus{outline:2px solid var(--green-d);border-color:var(--green)}
+.res{max-height:220px;overflow:auto;border:1px solid var(--line);border-radius:12px;margin-top:6px;display:none}
+.res button{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--line);color:var(--text);font:inherit;font-size:14px;padding:10px 12px;cursor:pointer}
+.res button small{color:var(--muted)}
+.check{display:flex;gap:8px;align-items:center;font-size:14px;margin:4px 0 16px}
+.check input{width:18px;height:18px;accent-color:var(--green)}
+.row{display:flex;gap:8px}.row .btn{flex:1}
+.note{font-size:14px;color:var(--faint);margin-top:14px;line-height:1.5}
+
+/* cartellino orizzontale */
+.cart{position:fixed;inset:0;z-index:30;background:#f3efe4;color:#1d2a22;display:none;overflow:hidden}
+.cart.on{display:block}
+.cart-in{position:absolute;top:0;left:0;width:100vw;height:100dvh;padding:14px 18px;display:flex;flex-direction:column;gap:10px}
+@media (orientation:portrait){.cart-in{width:100dvh;height:100vw;transform-origin:top left;transform:translateX(100vw) rotate(90deg)}}
+.cart-h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.cart-t{font-size:16px;font-weight:600;line-height:1.2}
+.cart-t small{display:block;font-size:12px;font-weight:400;color:#5b665f}
+.cart-x{font:inherit;font-size:13px;font-weight:600;border:1px solid #1d2a2233;background:#fff8;border-radius:99px;padding:6px 12px;cursor:pointer;color:#1d2a22}
+.cart-tab{flex:1;min-height:0;display:flex;align-items:center}
+.cart table{width:100%;border-collapse:collapse;table-layout:fixed;font-variant-numeric:tabular-nums}
+.cart th,.cart td{text-align:center;font-size:clamp(10px,1.55vmax,15px);padding:clamp(3px,.9vmin,7px) 0;border:1px solid #1d2a2222}
+.cart th:first-child,.cart td:first-child{text-align:left;padding-left:6px;width:11%;font-weight:500;color:#5b665f;font-size:clamp(9px,1.3vmax,13px)}
+.cart thead th{background:#1f4d36;color:#f3efe4;font-weight:600}
+.cart thead th:first-child{color:#cfe3d6}
+.cart .sum{background:#e6dfcc;font-weight:600}
+.cart thead th.sum{background:#173a29}
+.cart tr.colpi td{font-size:clamp(12px,1.9vmax,19px);font-weight:600;color:#1d2a22}
+.cart td.bi{background:#bfe3c9}.cart td.ea{background:#8fd0a3}.cart td.bo{background:#e6dcc0}.cart td.db{background:#f5d2c4}.cart td.tr{background:#eeb3a0}
+.cart tr.stbl td{color:#1f4d36;font-weight:600}
+.cart .rec{color:#8a6d1a;letter-spacing:-1px}
+.cart-f{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:#5b665f;align-items:baseline}
+.cart-f b{font-size:17px;color:#1d2a22;font-weight:600}
+.cart-f .sd b{color:#1f4d36}
+.cart-leg{margin-left:auto;display:flex;gap:10px;font-size:11px}
+.cart-leg i{display:inline-block;width:10px;height:10px;border-radius:3px;vertical-align:-1px;margin-right:3px;border:1px solid #0002}
+</style>
+</head>
+<body>
+<div class="gate" id="gate"><div><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="1.6" stroke-linecap="round"><path d="M5 21V4"/><path d="M5 4l11 4-11 4"/><ellipse cx="12" cy="20" rx="8" ry="2"/></svg><h1>Il mio golf</h1><p id="gateMsg">Apro la tua scheda…</p></div></div>
+<div class="app" id="app" hidden>
+  <header class="top">
+    <div><div class="hello">Ciao,</div><div class="name" id="nome"></div></div>
+    <div class="upd">aggiornato<br><span id="upd"></span></div>
+  </header>
+
+  <!-- ═════ OGGI ═════ -->
+  <section class="view on" id="v-oggi">
+    <div class="card hero">
+      <div class="label">Il tuo index</div>
+      <div class="hero-row"><div class="big" id="idx"></div><span class="chip" id="idxVar"></span></div>
+      <div class="sub" id="idxWhen"></div>
+      <svg class="spark" id="spark" viewBox="0 0 300 46" preserveAspectRatio="none" aria-label="Andamento index ultime 40 gare"></svg>
+      <div class="msg" id="capInfo" hidden></div>
+      <div class="msg info" id="pend" hidden></div>
+    </div>
+
+    <button class="cta" id="ctaFoto"><span class="ic"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span><span><b>Hai giocato oggi?</b><span>Fotografa lo score e simula la gara</span></span></button>
+
+    <div class="card">
+      <div class="ph">
+        <div>
+          <div class="label">Handicap di gioco</div>
+          <div class="ph-num num" id="ch"></div>
+          <div class="ph-where" id="chWhere"></div>
+        </div>
+        <button class="btn" id="btnCampo">Cambia campo</button>
+      </div>
+      <div class="tees" id="tees"></div>
+    </div>
+
+    <div class="grid">
+      <div class="card"><div class="label">Media migliori 8</div><div class="mid num" id="avg8"></div><div class="sub">differenziale</div></div>
+      <div class="card"><div class="label">Miglior score</div><div class="mid num" id="best"></div><div class="sub" id="bestWhen"></div></div>
+      <div class="card"><div class="label">Stableford medi</div><div class="mid num" id="stbl8"></div><div class="sub">nelle migliori 8</div></div>
+      <div class="card"><div class="label">Gare valide</div><div class="mid num" id="nGare"></div><div class="sub">nel calcolo</div></div>
+    </div>
+
+    <div class="card next">
+      <div class="label">Alla prossima gara</div>
+      <p id="nextTxt"></p>
+      <div class="out" id="outTxt"></div>
+    </div>
+  </section>
+
+  <!-- ═════ SCORE ═════ -->
+  <section class="view" id="v-score">
+    <div class="simbar"><b>Simulazione</b><span id="simTxt">Controlla i colpi: tocca un numero per correggerlo. Quando arriva il risultato ufficiale, prende il suo posto.</span><div style="margin-top:10px"><button class="btn" id="simDel">Cancella simulazione</button></div></div>
+    <div class="card">
+      <div class="label" id="scLab">Ultimo score</div>
+      <div class="sc-title" id="scTitle"></div>
+      <div class="sub" id="scSub"></div>
+      <select class="sc-pick" id="scPick" aria-label="Scegli la gara"></select>
+    </div>
+    <div class="grid sc-tots" id="scTots"></div>
+    <button class="rot" id="scRot"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="7" y="2" width="10" height="20" rx="2" transform="rotate(-90 12 12)"/><path d="M3 7a9 9 0 0 1 6-4M6 2l3 1-1 3"/></svg><span>Gira il telefono per il cartellino completo<small>oppure tocca qui</small></span></button>
+    <div class="card hb" id="scRows"></div>
+  </section>
+
+  <!-- ═════ GARE ═════ -->
+  <section class="view" id="v-gare">
+    <div class="sec-title"><span>Ultime 20 gare</span><span><span class="badge g">top 8</span> nel calcolo</span></div>
+    <div id="lista"></div>
+  </section>
+
+  <!-- ═════ SIMULA ═════ -->
+  <section class="view" id="v-simula">
+    <div class="card photo">
+      <h2 style="font-size:22px">Simula la gara di oggi</h2>
+      <p>Hai appena finito? Non aspettare il risultato ufficiale.</p>
+      <ol class="steps">
+        <li><span>Fotografa lo score<small>il cartellino firmato, tutto dentro la foto</small></span></li>
+        <li><span>Controlla i colpi letti<small>se un numero è sbagliato, lo tocchi e lo correggi</small></span></li>
+        <li><span>Vedi punti e nuovo index<small>la simulazione resta finché non arriva quella ufficiale</small></span></li>
+      </ol>
+      <div class="camp"><span><small>Campo</small><span id="simCampo"></span></span><button class="btn" id="simCambia">Cambia</button></div>
+      <button class="btn primary xl" id="btnFoto"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Fotografa lo score</button>
+      <input type="file" id="fileFoto" accept="image/*" capture="environment" hidden>
+      <button class="btn xl" style="margin-top:10px" id="btnMano">Inserisci i colpi a mano</button>
+      <div class="busy" id="busy"></div>
+    </div>
+  </section>
+</div>
+
+<nav class="tabs" aria-label="Sezioni">
+  <div class="in">
+    <button class="on" data-v="oggi"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M5 21V4"/><path d="M5 4l11 4-11 4"/><ellipse cx="12" cy="20" rx="8" ry="2"/></svg>Oggi</button>
+    <button data-v="gare"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 6h12M8 12h12M8 18h12"/><circle cx="4" cy="6" r="1"/><circle cx="4" cy="12" r="1"/><circle cx="4" cy="18" r="1"/></svg>Ultime 20</button>
+    <button data-v="simula" class="cam"><span class="cam-i"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg></span>Simula</button>
+    <button data-v="score"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M9 5v14M15 5v14"/></svg>Score</button>
+  </div>
+</nav>
+
+<div class="sheet-bg" id="sheetBg"></div>
+<div class="sheet" id="sheet" role="dialog" aria-label="Scegli il campo">
+  <div class="in">
+    <div class="grab"></div>
+    <h3>Su che campo giochi?</h3>
+    <div class="field"><label for="qCirc">Circolo</label><input id="qCirc" placeholder="Cerca: Modena, Bologna, Arzaga…" autocomplete="off"><div class="res" id="res"></div></div>
+    <div class="field"><label for="selPerc">Percorso</label><select id="selPerc"></select></div>
+    <div class="field"><label for="selTee">Tee</label><select id="selTee"></select></div>
+    <label class="check"><input type="checkbox" id="chkDef"> Usa sempre questo campo</label>
+    <div class="row"><button class="btn" id="btnAnn">Annulla</button><button class="btn primary" id="btnOk">Conferma</button></div>
+    <div class="note" id="nCampi"></div>
+  </div>
+</div>
+
+
+<div class="cart" id="cart" role="dialog" aria-label="Cartellino">
+  <div class="cart-in">
+    <div class="cart-h"><div class="cart-t" id="cartT"></div><button class="cart-x" id="cartX">Chiudi</button></div>
+    <div class="cart-tab"><table id="cartTab"></table></div>
+    <div class="cart-f" id="cartF"></div>
+  </div>
+</div>
+<script>
+const $ = id => document.getElementById(id);
+function init(D) {
+const r1 = x => Math.round((x + 1e-9) * 10) / 10, f1 = x => x == null ? '—' : x.toFixed(1).replace('.', ',');
+const TEE_COL = {BIANCO:'#f4f4f0',GIALLO:'#f2cf3e',VERDE:'#3c9a5f',BLU:'#3d6fd1',ROSSO:'#d84a3a',ARANCIO:'#f08a2c',NERO:'#111',ORO:'#c9a43b'};
+const nomeBreve = s => s.replace(/\s*(SSD|ASD|S\.?R\.?L\.?|A R\.?L\.?|SPA|S\.P\.A\.)\b.*$/i, '').trim();
+
+// ── stato campo: predefinito salvato sul telefono ──
+const KEY = 'golfpers.campo';
+const LS = (() => { try { return window['local' + 'Storage']; } catch (e) { return null; } })();
+let campo = (() => { try { return JSON.parse(LS.getItem(KEY)); } catch (e) { return null; } })() || D.giocatore.campo_default;
+const trova = c => D.campi.find(x => x.id === c.id && x.percorso === c.percorso) || D.campi.find(x => x.id === c.id) || D.campi[0];
+
+// ── dati base ──
+const hist = D.hist, last20 = hist.slice(-20);
+const best8 = [...last20].sort((a, b) => a.sd - b.sd).slice(0, 8);
+const idx = D.index;
+$('nome').textContent = D.giocatore.nome;
+$('upd').textContent = D.aggiornato;
+$('idx').textContent = f1(idx);
+const ult = hist[hist.length - 1], dv = r1(ult.in - ult.iv);
+const chip = $('idxVar');
+chip.className = 'chip ' + (dv > 0 ? 'up' : dv < 0 ? 'down' : 'same');
+chip.textContent = dv > 0 ? '▲ +' + f1(dv) : dv < 0 ? '▼ ' + f1(dv) : 'invariato';
+const gUlt = D.gare.find(g => g.data === ult.d);
+$('idxWhen').textContent = `dopo la gara del ${ult.d.slice(0, 5)}${gUlt ? ' · ' + gUlt.gara.toLowerCase().replace(/(^|\s)\S/g, s => s.toUpperCase()) : ''}`;
+const pend = D.gare.find(g => g.pending);
+const msg = (el, h, d) => { el.hidden = false; el.innerHTML = `<div class="msg-h"><span>${h}</span><button class="why">Perché?</button></div><div class="msg-d">${d}</div>`;
+  el.querySelector('.why').onclick = () => { el.classList.toggle('open'); el.querySelector('.why').textContent = el.classList.contains('open') ? 'Chiudi' : 'Perché?'; }; };
+if (pend) msg($('pend'), `Gara ${+pend.data.slice(0, 2) === 1 || +pend.data.slice(0, 2) === 8 || +pend.data.slice(0, 2) === 11 ? "dell'" : 'del '}${+pend.data.slice(0, 2)}/${pend.data.slice(3, 5)}: in attesa`, `Il risultato ufficiale non è ancora arrivato. In base ai punti in classifica la stima è differenziale ${f1(pend.sd_est)} e index ${f1(pend.idxN)}.`);
+
+const raw = r1(best8.reduce((a, b) => a + b.sd, 0) / 8);
+if (D.low != null && r1(raw - D.low) > 3) msg($('capInfo'), `Il tuo index non può salire oltre ${f1(r1(D.low + 5))}`, `Con le migliori 8 gare l'index sarebbe ${f1(raw)}. Le regole però non lo fanno salire più di 5 punti sopra il tuo index più basso degli ultimi 12 mesi, che è ${f1(D.low)}.`);
+// sparkline index
+(() => {
+  const v = hist.slice(-40).map(h => h.in), mn = Math.min(...v) - .3, mx = Math.max(...v) + .3, W = 300, H = 46;
+  const pts = v.map((y, i) => [i / (v.length - 1) * W, H - (y - mn) / (mx - mn) * H]);
+  const d = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+  $('spark').innerHTML = `<path d="${d} L${W} ${H} L0 ${H}Z" fill="color-mix(in srgb,var(--green) 12%,transparent)"/><path d="${d}" fill="none" stroke="var(--green)" stroke-width="1.6" vector-effect="non-scaling-stroke"/>` +
+    `<circle cx="${pts.at(-1)[0]}" cy="${pts.at(-1)[1]}" r="3" fill="var(--green)"/>`;
+})();
+
+// statistiche
+$('avg8').textContent = f1(r1(best8.reduce((a, b) => a + b.sd, 0) / 8));
+const b = best8[0]; $('best').textContent = f1(b.sd); $('bestWhen').textContent = 'il ' + b.d;
+const st8 = D.gare.filter(g => g.top8 && g.stbl != null);
+$('stbl8').textContent = st8.length ? f1(r1(st8.reduce((a, g) => a + g.stbl, 0) / st8.length)) : '—';
+$('nGare').innerHTML = `${last20.length}<small>/20</small>`;
+
+// ── handicap di gioco ──
+const chOf = (t, c) => c.buche === 9 ? Math.round(idx / 2 * t.sr / 113 + t.cr - c.par) : Math.round(idx * t.sr / 113 + t.cr - c.par);
+function disegnaCH() {
+  const c = trova(campo), tees = c.tee.filter(t => t.s === D.giocatore.sesso);
+  const t = tees.find(x => x.c === campo.tee) || tees[0];
+  $('ch').textContent = chOf(t, c);
+  $('chWhere').innerHTML = `${nomeBreve(c.sigla || c.circolo)}${c.percorso ? ' · ' + c.percorso : ''} · ${t.c.toLowerCase()}<small>${c.buche} buche · par ${c.par} · CR ${f1(t.cr)} · slope ${t.sr}</small>`;
+  $('tees').innerHTML = tees.map(x => `<button class="tee${x.c === t.c ? ' on' : ''}" data-t="${x.c}"><span class="dot" style="background:${TEE_COL[x.c] || '#888'}"></span>${x.c.toLowerCase()} <b class="num">${chOf(x, c)}</b></button>`).join('');
+  $('tees').querySelectorAll('.tee').forEach(el => el.onclick = () => { campo = { ...campo, tee: el.dataset.t }; salva(); disegnaCH(); disegnaNext(); });
+  return { c, t };
+}
+function salva() { try { LS.setItem(KEY, JSON.stringify(campo)); } catch (e) {} }
+
+// ── alla prossima gara: soglia per scendere ──
+const cap = raw => { const L = D.low; if (L == null || r1(raw - L) <= 3) return raw; return Math.min(r1(L + 3 + (raw - L - 3) / 2), r1(L + 5)); };
+function nuovoIdx(sd) { const w = [...hist.slice(-19).map(h => h.sd), sd].sort((a, b) => a - b).slice(0, 8); return cap(r1(w.reduce((a, b) => a + b, 0) / 8)); }
+function disegnaNext() {
+  const { c, t } = disegnaCH();
+  let soglia = null; for (let s = 60; s >= -5; s = r1(s - .1)) if (nuovoIdx(s) < idx) { soglia = s; break; }
+  const chv = chOf(t, c), par = c.par, k = c.buche === 9 ? 18 : 36;
+  let pts = null; for (let n = 10; n <= 60; n++) { const ags = par + k + chv - n; const sd = r1((ags - t.cr) * 113 / t.sr); if (nuovoIdx(sd) < idx) { pts = n; break; } }
+  $('nextTxt').innerHTML = soglia == null ? 'Alla prossima gara il tuo index non può scendere, qualunque sia il risultato.' :
+    `Per scendere sotto <b>${f1(idx)}</b> ti serve un differenziale di <b>${f1(soglia)}</b> o meno: su questo campo sono circa <b>${pts} punti Stableford</b>.`;
+  const old = hist[hist.length - 20];
+  if (old) $('outTxt').textContent = `Alla prossima gara esce dal calcolo quella del ${old.d} (differenziale ${f1(old.sd)}${best8.includes(old) ? ', tra le migliori 8' : ''}).`;
+}
+disegnaNext();
+
+// ── lista gare ──
+const cls = (c, p) => c == null ? 'x' : c <= p - 1 ? 'bi' : c === p ? 'pa' : c === p + 1 ? 'bo' : 'db';
+$('lista').innerHTML = D.gare.slice(0, 21).map((g, i) => {
+  const [dd, mm] = g.data.split('/');
+  const mesi = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+  const sd = g.sd ?? g.sd_est, sc = g.buche_score;
+  let body = '';
+  if (sc && sc.length) {
+    const half = (a, o) => `<div class="sc">${a.map(h => `<div class="h">${h.b}</div>`).join('')}${a.map(h => `<div class="h">par ${h.p}</div>`).join('')}${a.map(h => `<div class="c ${cls(h.c, h.p)}">${h.c ?? '–'}</div>`).join('')}</div>`;
+    const tot = sc.reduce((a, h) => a + (h.c || 0), 0);
+    body = half(sc.slice(0, 9)) + (sc.length > 9 ? half(sc.slice(9)) : '') + `<div class="sc-tot"><span>Colpi <b>${tot}</b></span><span>AGS <b>${g.ags ?? '—'}</b></span><span>PCC <b>${g.pcc ?? '—'}</b></span></div>`;
+  } else body = `<div class="sub" style="margin-top:4px">${g.pending ? 'Lo score buca per buca arriva con la classifica ufficiale. Nel frattempo puoi fotografare il cartellino.' : 'Score buca per buca non disponibile: il circolo non pubblica su GesGolf.'}</div>`;
+  body += `<div style="margin-top:10px"><a href="${g.link}" target="_blank" rel="noopener">Scheda FIG ↗</a></div>`;
+  return `<div class="race${g.top8 ? ' top8' : ''}">
+    <button class="race-h" aria-expanded="false">
+      <div class="race-d"><b>${+dd}</b>${mesi[+mm - 1]}</div>
+      <div class="race-n">${g.gara.toLowerCase().replace(/(^|\s)\S/g, s => s.toUpperCase())}<small>${nomeBreve(g.circolo)} · ${g.stbl != null ? g.stbl.toFixed(0) + ' punti' : '—'}${g.top8 ? '<span class="badge g">top 8</span>' : ''}${g.pending ? '<span class="badge p">in attesa</span>' : ''}</small></div>
+      <div class="race-r"><b class="num">${f1(sd)}</b>index ${f1(g.idxN)}</div>
+    </button>
+    <div class="race-b">${body}</div></div>`;
+}).join('');
+$('lista').querySelectorAll('.race-h').forEach((h, i) => h.onclick = () => {
+  if (D.gare[i].buche_score) { mostraScore(i); vai('score'); return; }
+  const r = h.parentElement; r.classList.toggle('open'); h.setAttribute('aria-expanded', r.classList.contains('open')); });
+
+// ── tab ──
+const TABS = ['oggi', 'gare', 'simula', 'score']; let tab = 'oggi';
+function vai(v) {
+  tab = v;
+  document.querySelectorAll('nav.tabs button').forEach(x => x.classList.toggle('on', x.dataset.v === v));
+  document.querySelectorAll('.view').forEach(x => x.classList.toggle('on', x.id === 'v-' + v));
+  window.scrollTo(0, 0); orient();
+}
+document.querySelectorAll('nav.tabs button').forEach(bt => bt.onclick = () => vai(bt.dataset.v));
+let x0 = null, y0 = null;
+document.addEventListener('touchstart', e => { if (e.target.closest('.sheet,.cart,select,input')) { x0 = null; return; } x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+document.addEventListener('touchend', e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+  if (Math.abs(dx) > 70 && Math.abs(dx) > 2 * Math.abs(dy)) { const k = TABS.indexOf(tab) + (dx < 0 ? 1 : -1); if (k >= 0 && k < TABS.length) vai(TABS[k]); } x0 = null; }, { passive: true });
+
+// ── foglio scelta campo ──
+let tmp = null;
+const circoli = [...new Map(D.campi.map(c => [c.id, c])).values()].sort((a, b) => (a.sigla || a.circolo).localeCompare(b.sigla || b.circolo));
+$('nCampi').textContent = `${circoli.length} circoli, ${D.campi.length} percorsi con rating ufficiale (fonte: pagine percorsi GesGolf).`;
+function apri() {
+  tmp = { ...campo }; const c = trova(tmp);
+  $('qCirc').value = nomeBreve(c.sigla || c.circolo); $('chkDef').checked = true; riempi(); $('res').style.display = 'none';
+  $('sheet').classList.add('on'); $('sheetBg').classList.add('on');
+}
+function chiudi() { $('sheet').classList.remove('on'); $('sheetBg').classList.remove('on'); }
+function riempi() {
+  const perc = D.campi.filter(x => x.id === tmp.id);
+  $('selPerc').innerHTML = perc.map(p => `<option value="${p.percorso}"${p.percorso === tmp.percorso ? ' selected' : ''}>${p.percorso || 'Percorso'} · ${p.buche} buche · par ${p.par}</option>`).join('');
+  tmp.percorso = $('selPerc').value;
+  const c = trova(tmp), tees = c.tee.filter(t => t.s === D.giocatore.sesso);
+  if (!tees.some(t => t.c === tmp.tee)) tmp.tee = (tees.find(t => t.c === 'GIALLO') || tees.find(t => t.c === 'ROSSO') || tees[0]).c;
+  $('selTee').innerHTML = tees.map(t => `<option value="${t.c}"${t.c === tmp.tee ? ' selected' : ''}>${t.c.toLowerCase()} · CR ${f1(t.cr)} / ${t.sr} → handicap ${chOf(t, c)}</option>`).join('');
+}
+$('qCirc').oninput = () => {
+  const q = $('qCirc').value.trim().toLowerCase(); const res = $('res');
+  if (q.length < 2) { res.style.display = 'none'; return; }
+  const m = circoli.filter(c => (c.sigla + ' ' + c.circolo).toLowerCase().includes(q)).slice(0, 30);
+  res.innerHTML = m.map(c => `<button data-id="${c.id}">${nomeBreve(c.sigla || c.circolo)} <small>${c.circolo !== c.sigla ? '· ' + c.circolo.toLowerCase() : ''}</small></button>`).join('') || '<div class="sub" style="padding:10px 12px">Nessun circolo</div>';
+  res.style.display = 'block';
+  res.querySelectorAll('button').forEach(bt => bt.onclick = () => { tmp = { id: +bt.dataset.id, percorso: '', tee: tmp.tee }; $('qCirc').value = bt.firstChild.textContent.trim(); res.style.display = 'none'; riempi(); });
+};
+$('selPerc').onchange = () => { tmp.percorso = $('selPerc').value; riempi(); };
+$('selTee').onchange = () => { tmp.tee = $('selTee').value; };
+$('btnCampo').onclick = apri; $('btnAnn').onclick = chiudi; $('sheetBg').onclick = chiudi;
+$('btnOk').onclick = () => { campo = { ...tmp }; if ($('chkDef').checked) salva(); disegnaNext(); chiudi(); };
+
+// ── cartellino orizzontale ──
+function calc(g) {
+  const sc = g.buche_score, ch = Math.round(g.idxV * g.sr / 113 + g.cr - sc.reduce((a, h) => a + h.p, 0));
+  const rec = h => Math.floor(ch / 18) + (h.si <= ch % 18 ? 1 : 0) + (ch < 0 && h.si > 18 + ch ? -1 : 0);
+  const pt = h => h.c == null ? 0 : Math.max(0, h.p + rec(h) + 2 - h.c);
+  const cl = h => { if (h.c == null) return ''; const d = h.c - h.p; return d <= -2 ? 'ea' : d === -1 ? 'bi' : d === 0 ? '' : d === 1 ? 'bo' : d === 2 ? 'db' : 'tr'; };
+  const S = (a, f) => a.reduce((x, h) => x + (f(h) || 0), 0);
+  return { sc, ch, rec, pt, cl, S };
+}
+const titolo = g => g.gara.toLowerCase().replace(/(^|\s)\S/g, x => x.toUpperCase());
+let SIM = (() => { try { return JSON.parse(LS.getItem('golfpers.sim')); } catch (e) { return null; } })();
+if (SIM && D.gare.some(g => g.data === SIM.data && !g.pending && g.sd != null)) { SIM = null; try { LS.removeItem('golfpers.sim'); } catch (e) {} }  // arrivato l'ufficiale
+const G = i => i === -1 ? SIM : D.gare[i];
+let scIdx = SIM ? -1 : D.gare.findIndex(g => g.buche_score), auto = false;
+function mostraScore(i, sim) {
+  if (i === -1 && !SIM) i = D.gare.findIndex(g => g.buche_score); if (i === -1 && !SIM) return; sim = i === -1;
+  scIdx = i; $('v-score').classList.toggle('sim', sim); const g = G(i), { sc, ch, pt, cl, S } = calc(g);
+  $('scLab').textContent = sim ? 'Simulazione' : i === D.gare.findIndex(x => x.buche_score) ? 'Ultimo score' : 'Score';
+  $('scTitle').textContent = titolo(g);
+  $('scSub').textContent = `${g.data} · ${nomeBreve(g.circolo)} · handicap di gioco ${ch}`;
+  if (sim) $('simTxt').textContent = (g.nota ? g.nota + ' ' : '') + ((g.incerte || []).length ? `Controlla le buche bordate in giallo (${g.incerte.join(', ')}): la lettura è incerta. ` : '') + 'Tocca un numero per correggerlo. Quando arriva il risultato ufficiale, prende il suo posto.';
+  $('scTots').innerHTML = [['Punti', S(sc, pt)], ['Colpi', S(sc, h => h.c)], ['Differenziale', f1(g.sd ?? g.sd_est)], ['Nuovo index', f1(g.idxN)]]
+    .map(([l, v]) => `<div class="card"><div class="label">${l}</div><div class="mid num">${v}</div></div>`).join('');
+  const row = h => `<div class="hb-r"><span class="b">${h.b}</span><span>${h.p}</span><span>${sim ? `<button class="k edit ${cl(h)}${(g.incerte || []).includes(h.b) ? ' dub' : ''}" data-b="${h.b}">${h.c ?? '–'}</button>` : `<span class="k ${cl(h)}">${h.c ?? '–'}</span>`}</span><span class="pt">${h.c == null ? '–' : pt(h)}</span></div>`;
+  const tot = (l, a) => `<div class="hb-r t"><span class="b">${l}</span><span>${S(a, h => h.p)}</span><span>${S(a, h => h.c)}</span><span class="pt">${S(a, pt)}</span></div>`;
+  const F = sc.slice(0, 9), B = sc.slice(9);
+  $('scRows').innerHTML = `<div class="hb-r h"><span class="b">Buca</span><span>Par</span><span>Colpi</span><span>Punti</span></div>` + F.map(row).join('') + tot('Andata', F) + (B.length ? B.map(row).join('') + tot('Ritorno', B) : '');
+  $('scPick').value = String(i);
+  if (sim) $('scRows').querySelectorAll('.edit').forEach(b => b.onclick = () => {
+    const h = SIM.buche_score.find(x => x.b === +b.dataset.b);
+    const v = prompt(`Colpi alla buca ${h.b} (par ${h.p}). Lascia vuoto se non l'hai finita.`, h.c ?? '');
+    if (v === null) return; const n = parseInt(v, 10); h.c = n > 0 && n < 20 ? n : null;
+    SIM.incerte = (SIM.incerte || []).filter(x => x !== h.b); ricalcolaSim(); mostraScore(-1);
+  });
+}
+const pick = () => { $('scPick').innerHTML = (SIM ? `<option value="-1">${SIM.data.slice(0, 5)} · Simulazione</option>` : '') + D.gare.map((g, i) => g.buche_score ? `<option value="${i}">${g.data.slice(0, 5)} · ${titolo(g)}</option>` : '').join(''); }; pick();
+$('scPick').onchange = () => mostraScore(+$('scPick').value);
+const mqL = window.matchMedia('(orientation: landscape) and (max-height: 560px)');
+function orient() {
+  if (tab === 'score' && mqL.matches) { cartellino(G(scIdx), true); auto = true; }
+  else if (auto) { $('cart').classList.remove('on', 'land'); auto = false; }
+}
+mqL.addEventListener ? mqL.addEventListener('change', orient) : mqL.addListener(orient);
+function cartellino(g, land) {
+  const { sc, ch, rec, pt, cl, S } = calc(g);
+  $('cart').classList.toggle('land', !!land);
+  const F = sc.slice(0, 9), B = sc.slice(9);
+  const riga = (lab, f, cls = '', sumf) => `<tr class="${cls}"><td>${lab}</td>${F.map(h => `<td class="${cls === 'colpi' ? cl(h) : ''}">${f(h)}</td>`).join('')}<td class="sum">${sumf ? sumf(F) : ''}</td>` +
+    (B.length ? B.map(h => `<td class="${cls === 'colpi' ? cl(h) : ''}">${f(h)}</td>`).join('') + `<td class="sum">${sumf ? sumf(B) : ''}</td>` : '') + `<td class="sum">${sumf ? sumf(sc) : ''}</td></tr>`;
+  $('cartTab').innerHTML = `<thead><tr><th>Buca</th>${F.map(h => `<th>${h.b}</th>`).join('')}<th class="sum">Out</th>${B.map(h => `<th>${h.b}</th>`).join('')}${B.length ? '<th class="sum">In</th>' : ''}<th class="sum">Tot</th></tr></thead><tbody>` +
+    riga('Par', h => h.p, '', a => S(a, h => h.p)) + riga('Hcp', h => h.si) +
+    riga('Colpi ricevuti', h => `<span class="rec">${'•'.repeat(Math.max(0, rec(h)))}</span>`, '', a => S(a, rec)) +
+    riga('Colpi', h => h.c ?? '–', 'colpi', a => S(a, h => h.c)) + riga('Punti', h => h.c == null ? '–' : pt(h), 'stbl', a => S(a, pt)) + '</tbody>';
+  const ttl = titolo(g);
+  $('cartT').innerHTML = `${ttl}<small>${g.data} · ${nomeBreve(g.circolo)} · CR ${f1(g.cr)} / ${g.sr} · index ${f1(g.idxV)} → handicap di gioco ${ch}</small>`;
+  $('cartF').innerHTML = `<span>Lordo <b>${S(sc, h => h.c)}</b></span><span>Stableford <b>${S(sc, pt)}</b></span><span>AGS <b>${g.ags ?? '—'}</b></span><span>PCC <b>${g.pcc ?? '—'}</b></span><span class="sd">Differenziale <b>${f1(g.sd ?? g.sd_est)}</b></span><span>Nuovo index <b>${f1(g.idxN)}</b></span>` +
+    `<span class="cart-leg"><span><i style="background:#8fd0a3"></i>eagle</span><span><i style="background:#bfe3c9"></i>birdie</span><span><i style="background:#e6dcc0"></i>bogey</span><span><i style="background:#f5d2c4"></i>doppio</span><span><i style="background:#eeb3a0"></i>triplo+</span></span>`;
+  $('cart').classList.add('on');
+}
+$('cartX').onclick = () => { $('cart').classList.remove('on', 'land'); auto = false; };
+$('scRot').onclick = () => cartellino(G(scIdx));
+$('ctaFoto').onclick = () => vai('simula');
+
+// ── simulazione: foto o inserimento a mano ──
+const oggiIt = () => { const d = new Date(); return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`; };
+function campoSim() { const c = trova(campo), tees = c.tee.filter(t => t.s === D.giocatore.sesso); return { c, t: tees.find(x => x.c === campo.tee) || tees[0] }; }
+function mostraCampoSim() { const { c, t } = campoSim(); $('simCampo').textContent = `${nomeBreve(c.sigla || c.circolo)}${c.percorso ? ' · ' + c.percorso : ''} · ${t.c.toLowerCase()}`; }
+mostraCampoSim(); $('simCambia').onclick = () => { apri(); };
+const _ok = $('btnOk').onclick; $('btnOk').onclick = () => { _ok(); mostraCampoSim(); };
+function ricalcolaSim() {
+  const { sc, rec } = calc(SIM);
+  SIM.ags = sc.reduce((a, h) => a + (h.c ? Math.min(h.c, h.p + 2 + rec(h)) : h.p + 2 + rec(h)), 0);
+  SIM.sd = r1((SIM.ags - SIM.cr - (SIM.pcc || 0)) * 113 / SIM.sr); SIM.idxN = nuovoIdx(SIM.sd);
+  try { LS.setItem('golfpers.sim', JSON.stringify(SIM)); } catch (e) {}
+}
+function nuovaSim(buche, extra = {}) {
+  const { c, t } = campoSim();
+  SIM = { data: oggiIt(), gara: 'Gara di oggi', circolo: c.sigla || c.circolo, buche: '18', cr: t.cr, sr: t.sr, pcc: 0, idxV: idx, sim: true,
+    buche_score: c.h.map(([p, si], k) => ({ b: k + 1, p, si, c: buche ? buche[k] ?? null : null })), ...extra };
+  ricalcolaSim(); pick(); mostraScore(-1); vai('score');
+}
+$('simDel').onclick = () => { if (!confirm('Cancello la simulazione?')) return; SIM = null; try { LS.removeItem('golfpers.sim'); } catch (e) {} pick(); mostraScore(D.gare.findIndex(g => g.buche_score)); };
+const pronto = () => { const { c } = campoSim(); if (!c.h || c.buche !== 18) { alert('Per questo campo non ho par e handicap delle buche (o è da 9 buche): scegli un altro campo.'); return false; } return true; };
+$('btnMano').onclick = () => { if (pronto()) nuovaSim(null, { incerte: [] }); };
+$('btnFoto').onclick = () => { if (pronto()) $('fileFoto').click(); };
+function toJpeg(file, max = 1600) {
+  return new Promise((res, rej) => { const img = new Image();
+    img.onload = () => { const k = Math.min(1, max / Math.max(img.width, img.height)); const cv = document.createElement('canvas');
+      cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k); cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+      res(cv.toDataURL('image/jpeg', 0.85).split(',')[1]); };
+    img.onerror = rej; img.src = URL.createObjectURL(file); });
+}
+async function leggiFoto(b64) {
+  const { c } = campoSim();
+  const p = `Sei un lettore di schede score di golf italiane compilate a mano. Il titolare è ${D.giocatore.nome}: il suo nome è in alto sulla scheda; usa SOLO la sua riga o colonna di colpi, non quella del marcatore.
+Campo: ${c.sigla} ${c.percorso}. Par per buca: ${c.h.map(x => x[0]).join(',')}. Handicap di buca: ${c.h.map(x => x[1]).join(',')}.
+Leggi per ognuna delle 18 buche i colpi lordi. Buca vuota, con X, -, / o cancellata = null. Metti in "incerte" i numeri delle buche con cifra dubbia.
+Rispondi solo con JSON: {"giocatore":str,"colpi":[18 interi o null],"totale_scritto":int|null,"incerte":[int]}`;
+  let ultimo = '';
+  for (const m of D.ai.models) {
+    try {
+      const ctl = new AbortController(), to = setTimeout(() => ctl.abort(), 75000);
+      const r = await fetch(D.ai.base + '/chat/completions', { method: 'POST', signal: ctl.signal,
+        headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + D.ai.key },
+        body: JSON.stringify({ model: m, response_format: { type: 'json_object' }, messages: [{ role: 'user', content: [{ type: 'text', text: p },
+          { type: 'image_url', image_url: { url: 'data:image/jpeg;base64,' + b64, detail: 'high' } }] }] }) });
+      clearTimeout(to);
+      if (!r.ok) { ultimo = 'errore ' + r.status; continue; }
+      let t = (await r.json()).choices?.[0]?.message?.content || '{}'; t = t.slice(t.indexOf('{'), t.lastIndexOf('}') + 1);
+      const j = JSON.parse(t); if (Array.isArray(j.colpi) && j.colpi.length >= 18) return j; ultimo = 'risposta incompleta';
+    } catch (e) { ultimo = e.name === 'AbortError' ? 'risposta troppo lenta' : 'connessione'; }
+  }
+  throw new Error(ultimo);
+}
+$('fileFoto').onchange = async ev => {
+  const f = ev.target.files[0]; ev.target.value = ''; if (!f) return;
+  const busy = $('busy'); busy.style.display = 'block'; let s0 = Date.now();
+  const tk = setInterval(() => busy.textContent = `Leggo lo score… ${Math.round((Date.now() - s0) / 1000)} s`, 1000); busy.textContent = 'Leggo lo score…';
+  try {
+    const j = await leggiFoto(await toJpeg(f));
+    const colpi = j.colpi.slice(0, 18).map(x => Number.isInteger(x) && x > 0 && x < 20 ? x : null);
+    const tot = colpi.reduce((a, b) => a + (b || 0), 0);
+    nuovaSim(colpi, { incerte: j.incerte || [], nota: j.totale_scritto && j.totale_scritto !== tot ? `Attenzione: sulla scheda il totale scritto è ${j.totale_scritto}, quello letto è ${tot}.` : '' });
+  } catch (e) { alert('Non sono riuscito a leggere la foto (' + e.message + '). Riprova con più luce, oppure inserisci i colpi a mano.'); }
+  finally { clearInterval(tk); busy.style.display = 'none'; }
+};
+mostraScore(scIdx);
+if (SIM) msg($('pend'), `Simulazione di oggi: index ${f1(SIM.idxN)}`, `Differenziale stimato ${f1(SIM.sd)} (senza PCC). Resta finché non arriva il risultato ufficiale.`);
+if (D.fonte === 'gesgolf') $('idxWhen').textContent = `all'ultima gara a Modena del ${ult.d.slice(0, 5)} · dalle classifiche GesGolf`;
+}
+
+// ── apertura: link personale → file cifrato → scheda ──
+window.addEventListener('hashchange', () => location.reload());
+(async () => {
+  const gate = m => { $('gateMsg').textContent = m; };
+  const LSb = (() => { try { return window['local' + 'Storage']; } catch (e) { return null; } })();
+  let h = location.hash.slice(1);
+  if (h) { try { LSb.setItem('golfpers.link', h); } catch (e) {} } else { try { h = LSb.getItem('golfpers.link') || ''; } catch (e) {} }
+  const [id, k] = h.split('.');
+  if (!id || !k) return gate('Per aprire la tua scheda usa il link personale che ti è stato mandato.');
+  try {
+    const un = s => Uint8Array.from(atob(s.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - s.length % 4) % 4)), c => c.charCodeAt(0));
+    const [rb, rc] = await Promise.all([fetch(`d/${id}.bin`, { cache: 'no-store' }), fetch('campi.json', { cache: 'no-store' })]);
+    if (!rb.ok) return gate('Questo link non è più attivo. Chiedi a Carlo quello nuovo.');
+    const buf = new Uint8Array(await rb.arrayBuffer());
+    const key = await crypto.subtle.importKey('raw', un(k), 'AES-GCM', false, ['decrypt']);
+    const D = JSON.parse(new TextDecoder().decode(await crypto.subtle.decrypt({ name: 'AES-GCM', iv: buf.slice(0, 12) }, key, buf.slice(12))));
+    D.campi = rc.ok ? await rc.json() : [];
+    document.title = 'Golf · ' + D.giocatore.nome.split(' ')[0];
+    $('gate').hidden = true; $('app').hidden = false; init(D);
+  } catch (e) { gate('Non riesco ad aprire la scheda: il link sembra incompleto. Riaprilo dal messaggio originale.'); console.error(e); }
+})();
+</script>
+</body>
+</html>
