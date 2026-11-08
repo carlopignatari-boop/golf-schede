@@ -164,6 +164,20 @@ nav.tabs button.on{color:var(--green)}
 .busy{display:none;margin-top:16px;font-size:17px;color:var(--gold)}
 .camp{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:left;margin:0 0 18px;padding:12px 14px;border-radius:12px;background:var(--elev);border:1px solid var(--line);font-size:16px}
 .camp small{display:block;color:var(--muted);font-size:14px}
+.v-h{font-size:22px;font-weight:600;margin:2px 2px 12px}
+.q{font-size:19px;font-weight:600;line-height:1.3}
+.step{display:grid;grid-template-columns:64px 1fr 64px;gap:10px;align-items:center;margin:14px 0 6px}
+.st-b{height:64px;border-radius:16px;border:1px solid var(--line);background:var(--elev);color:var(--text);font:inherit;font-size:34px;font-weight:500;cursor:pointer}
+.st-b:active{transform:scale(.96)}
+.st-v{width:100%;height:72px;text-align:center;font:inherit;font-size:52px;font-weight:600;color:var(--text);background:none;border:0;border-bottom:2px solid var(--green);-moz-appearance:textfield}
+.st-v::-webkit-inner-spin-button,.st-v::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+.res-box{margin-top:14px;padding:14px;border-radius:12px;background:var(--elev);font-size:17px;line-height:1.5}
+.res-box b{font-size:22px}
+.res-box .r{display:flex;justify-content:space-between;align-items:baseline;padding:3px 0}
+.warn{margin-top:12px;padding:12px 14px;border-radius:12px;font-size:16px;line-height:1.45;background:color-mix(in srgb,var(--warm) 13%,var(--surface));border:1px solid color-mix(in srgb,var(--warm) 40%,transparent);color:#f6d2c6}
+.card.alt{background:var(--bg)}
+.lnk{display:block;margin:14px auto 0;font:inherit;font-size:16px;color:var(--blue);background:none;border:0;text-decoration:underline;cursor:pointer}
+.simbar .warn{margin-top:10px}
 .view{display:none}.view.on{display:block}
 
 /* foglio scelta campo */
@@ -283,19 +297,28 @@ nav.tabs button.on{color:var(--green)}
 
   <!-- ═════ SIMULA ═════ -->
   <section class="view" id="v-simula">
-    <div class="card photo">
-      <h2 style="font-size:22px">Simula la gara di oggi</h2>
-      <p>Hai appena finito? Non aspettare il risultato ufficiale.</p>
-      <ol class="steps">
-        <li><span>Fotografa lo score<small>il cartellino firmato, tutto dentro la foto</small></span></li>
-        <li><span>Controlla i colpi letti<small>se un numero è sbagliato, lo tocchi e lo correggi</small></span></li>
-        <li><span>Vedi punti e nuovo index<small>la simulazione resta finché non arriva quella ufficiale</small></span></li>
-      </ol>
-      <div class="camp"><span><small>Campo</small><span id="simCampo"></span></span><button class="btn" id="simCambia">Cambia</button></div>
-      <button class="btn primary xl" id="btnFoto"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Fotografa lo score</button>
+    <h2 class="v-h">Simula la gara di oggi</h2>
+    <div class="camp"><span><small>Hai giocato a</small><span id="simCampo"></span></span><button class="btn" id="simCambia">Cambia</button></div>
+
+    <div class="card">
+      <div class="q">Quanti punti Stableford hai fatto?</div>
+      <div class="step">
+        <button class="st-b" id="ptMeno" aria-label="Un punto in meno">−</button>
+        <input id="ptVal" class="st-v num" type="number" inputmode="numeric" min="0" max="72" value="36" aria-label="Punti Stableford">
+        <button class="st-b" id="ptPiu" aria-label="Un punto in più">+</button>
+      </div>
+      <div class="res-box" id="ptRes"></div>
+      <div class="warn" id="ptWarn" hidden></div>
+      <button class="btn primary xl" id="ptSalva" style="margin-top:14px">Salva la simulazione</button>
+    </div>
+
+    <div class="card alt">
+      <div class="q" style="font-size:18px">Hai lo score in mano?</div>
+      <div class="sub" style="margin:4px 0 12px">Fotografalo: l'app legge i colpi buca per buca e fa i conti.</div>
+      <button class="btn xl" id="btnFoto"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg>Fotografa lo score</button>
       <input type="file" id="fileFoto" accept="image/*" capture="environment" hidden>
-      <button class="btn xl" style="margin-top:10px" id="btnMano">Inserisci i colpi a mano</button>
       <div class="busy" id="busy"></div>
+      <button class="lnk" id="btnMano">oppure scrivi i colpi buca per buca</button>
     </div>
   </section>
 </div>
@@ -491,14 +514,27 @@ const titolo = g => g.gara.toLowerCase().replace(/(^|\s)\S/g, x => x.toUpperCase
 let SIM = (() => { try { return JSON.parse(LS.getItem('golfpers.sim')); } catch (e) { return null; } })();
 if (SIM && D.gare.some(g => g.data === SIM.data && !g.pending && g.sd != null)) { SIM = null; try { LS.removeItem('golfpers.sim'); } catch (e) {} }  // arrivato l'ufficiale
 const G = i => i === -1 ? SIM : D.gare[i];
-let scIdx = SIM ? -1 : D.gare.findIndex(g => g.buche_score), auto = false;
+const simBuche = () => SIM && !SIM.solo_punti;
+let scIdx = SIM && !SIM.solo_punti ? -1 : D.gare.findIndex(g => g.buche_score), auto = false;
 function mostraScore(i, sim) {
-  if (i === -1 && !SIM) i = D.gare.findIndex(g => g.buche_score); if (i === -1 && !SIM) return; sim = i === -1;
+  if (i === -1 && !simBuche()) i = D.gare.findIndex(g => g.buche_score); if (i === -1 && !simBuche()) return; sim = i === -1;
   scIdx = i; $('v-score').classList.toggle('sim', sim); const g = G(i), { sc, ch, pt, cl, S } = calc(g);
   $('scLab').textContent = sim ? 'Simulazione' : i === D.gare.findIndex(x => x.buche_score) ? 'Ultimo score' : 'Score';
   $('scTitle').textContent = titolo(g);
   $('scSub').textContent = `${g.data} · ${nomeBreve(g.circolo)} · handicap di gioco ${ch}`;
-  if (sim) $('simTxt').textContent = (g.nota ? g.nota + ' ' : '') + ((g.incerte || []).length ? `Controlla le buche bordate in giallo (${g.incerte.join(', ')}): la lettura è incerta. ` : '') + 'Tocca un numero per correggerlo. Quando arriva il risultato ufficiale, prende il suo posto.';
+  if (sim) {
+    const w = [], vuote = sc.filter(h => h.c == null).map(h => h.b), strane = sc.filter(h => h.c != null && (h.c < h.p - 2 || h.c > h.p + 8)).map(h => h.b);
+    const tot = S(sc, h => h.c), P = S(sc, pt);
+    if (vuote.length === sc.length) w.push('Tocca ogni buca e scrivi i colpi.');
+    else if (vuote.length) w.push(`Buche senza colpi: ${vuote.join(', ')}. Contano come doppio bogey netto (0 punti): se le hai finite, scrivi i colpi.`);
+    if (strane.length) w.push(`Numeri insoliti alle buche ${strane.join(', ')}: controlla.`);
+    if ((g.incerte || []).length) w.push(`Lettura incerta alle buche ${g.incerte.join(', ')} (bordate in giallo).`);
+    if (g.tot_scritto && g.tot_scritto !== tot && !vuote.length) w.push(`Sulla scheda il totale scritto è ${g.tot_scritto}, la somma delle buche è ${tot}.`);
+    if (g.stbl_scritto && g.stbl_scritto !== P) w.push(`Sulla scheda i punti scritti sono ${g.stbl_scritto}, il calcolo dà ${P}: controlla le buche.`);
+    if (g.nome_letto && !g.nome_letto.toUpperCase().includes(D.giocatore.nome.split(' ').slice(-1)[0].toUpperCase())) w.push(`Sulla scheda ho letto il nome «${g.nome_letto}»: è la tua?`);
+    if (vuote.length < sc.length && P > 45) w.push(`${P} punti è un risultato eccezionale: controlla i colpi.`);
+    $('simTxt').innerHTML = 'Tocca un numero per correggerlo. Quando arriva il risultato ufficiale, prende il suo posto.' + (w.length ? `<div class="warn">${w.join('<br>')}</div>` : '');
+  }
   $('scTots').innerHTML = [['Punti', S(sc, pt)], ['Colpi', S(sc, h => h.c)], ['Differenziale', f1(g.sd ?? g.sd_est)], ['Nuovo index', f1(g.idxN)]]
     .map(([l, v]) => `<div class="card"><div class="label">${l}</div><div class="mid num">${v}</div></div>`).join('');
   const row = h => `<div class="hb-r"><span class="b">${h.b}</span><span>${h.p}</span><span>${sim ? `<button class="k edit ${cl(h)}${(g.incerte || []).includes(h.b) ? ' dub' : ''}" data-b="${h.b}">${h.c ?? '–'}</button>` : `<span class="k ${cl(h)}">${h.c ?? '–'}</span>`}</span><span class="pt">${h.c == null ? '–' : pt(h)}</span></div>`;
@@ -513,7 +549,7 @@ function mostraScore(i, sim) {
     SIM.incerte = (SIM.incerte || []).filter(x => x !== h.b); ricalcolaSim(); mostraScore(-1);
   });
 }
-const pick = () => { $('scPick').innerHTML = (SIM ? `<option value="-1">${SIM.data.slice(0, 5)} · Simulazione</option>` : '') + D.gare.map((g, i) => g.buche_score ? `<option value="${i}">${g.data.slice(0, 5)} · ${titolo(g)}</option>` : '').join(''); }; pick();
+const pick = () => { $('scPick').innerHTML = (SIM && !SIM.solo_punti ? `<option value="-1">${SIM.data.slice(0, 5)} · Simulazione</option>` : '') + D.gare.map((g, i) => g.buche_score ? `<option value="${i}">${g.data.slice(0, 5)} · ${titolo(g)}</option>` : '').join(''); }; pick();
 $('scPick').onchange = () => mostraScore(+$('scPick').value);
 const mqL = window.matchMedia('(orientation: landscape) and (max-height: 560px)');
 function orient() {
@@ -544,7 +580,7 @@ $('ctaFoto').onclick = () => vai('simula');
 // ── simulazione: foto o inserimento a mano ──
 const oggiIt = () => { const d = new Date(); return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`; };
 function campoSim() { const c = trova(campo), tees = c.tee.filter(t => t.s === D.giocatore.sesso); return { c, t: tees.find(x => x.c === campo.tee) || tees[0] }; }
-function mostraCampoSim() { const { c, t } = campoSim(); $('simCampo').textContent = `${nomeBreve(c.sigla || c.circolo)}${c.percorso ? ' · ' + c.percorso : ''} · ${t.c.toLowerCase()}`; }
+let mostraCampoSim = function () { const { c, t } = campoSim(); $('simCampo').textContent = `${nomeBreve(c.sigla || c.circolo)}${c.percorso ? ' · ' + c.percorso : ''} · ${t.c.toLowerCase()}`; };
 mostraCampoSim(); $('simCambia').onclick = () => { apri(); };
 const _ok = $('btnOk').onclick; $('btnOk').onclick = () => { _ok(); mostraCampoSim(); };
 function ricalcolaSim() {
@@ -562,6 +598,49 @@ function nuovaSim(buche, extra = {}) {
 $('simDel').onclick = () => { if (!confirm('Cancello la simulazione?')) return; SIM = null; try { LS.removeItem('golfpers.sim'); } catch (e) {} pick(); mostraScore(D.gare.findIndex(g => g.buche_score)); };
 const pronto = () => { const { c } = campoSim(); if (!c.h || c.buche !== 18) { alert('Per questo campo non ho par e handicap delle buche (o è da 9 buche): scegli un altro campo.'); return false; } return true; };
 $('btnMano').onclick = () => { if (pronto()) nuovaSim(null, { incerte: [] }); };
+
+// ── solo punti Stableford: AGS = par + handicap di gioco + 36 − punti (esatto con il doppio bogey netto) ──
+const stblStor = D.gare.filter(g => g.stbl != null && !g.pending).map(g => g.stbl);
+const bestStbl = stblStor.length ? Math.max(...stblStor) : null;
+function daPunti(P) {
+  const { c, t } = campoSim(); const nove = c.buche === 9;
+  const ch = nove ? Math.round(idx / 2 * t.sr / 113 + t.cr - c.par) : Math.round(idx * t.sr / 113 + t.cr - c.par);
+  if (nove) return { c, t, ch, nove };
+  const ags = c.par + ch + 36 - P, sd = r1((ags - t.cr) * 113 / t.sr);
+  return { c, t, ch, ags, sd, idxN: nuovoIdx(sd) };
+}
+function controlliPunti(P, r) {
+  const w = [];
+  if (!Number.isInteger(P) || P < 0 || P > 72) return ['Scrivi un numero di punti tra 0 e 72.'];
+  if (P > 45) w.push(`${P} punti è un risultato eccezionale: controlla di aver scritto bene.`);
+  else if (bestStbl != null && P >= bestStbl + 6) w.push(`È molto sopra il tuo miglior risultato recente (${bestStbl} punti): controlla.`);
+  if (P < 12) w.push(`${P} punti è molto basso: controlla di aver scritto bene.`);
+  if (r.sd != null && r1(idx - r.sd) >= 7) w.push('Con un punteggio così l’index può scendere ancora un po’ di più di quanto vedi: le regole prevedono una riduzione extra per i risultati eccezionali.');
+  if (D.gare.some(g => g.data === oggiIt() && !g.pending && g.sd != null)) w.push('Per oggi c’è già il risultato ufficiale: la simulazione non serve.');
+  return w;
+}
+function aggiornaPunti() {
+  const P = parseInt($('ptVal').value, 10), r = daPunti(P);
+  if (r.nove) { $('ptRes').innerHTML = 'Per i campi da 9 buche la simulazione non è ancora disponibile.'; $('ptWarn').hidden = true; $('ptSalva').disabled = true; return; }
+  const w = controlliPunti(P, r), bad = !Number.isInteger(P) || P < 0 || P > 72;
+  $('ptSalva').disabled = bad;
+  const dv = bad ? 0 : r1(r.idxN - idx);
+  $('ptRes').innerHTML = bad ? '—' : `<div class="r"><span>Handicap di gioco</span><b>${r.ch}</b></div><div class="r"><span>Differenziale</span><b>${f1(r.sd)}</b></div>
+    <div class="r"><span>Nuovo index</span><b style="color:${dv < 0 ? 'var(--green)' : dv > 0 ? 'var(--warm)' : 'var(--text)'}">${f1(r.idxN)}</b></div>
+    <div class="sub" style="margin-top:4px">${dv < 0 ? 'scendi di ' + f1(-dv) : dv > 0 ? 'sali di ' + f1(dv) : 'resta uguale'} · 36 punti = hai giocato secondo il tuo handicap</div>`;
+  $('ptWarn').hidden = !w.length; $('ptWarn').innerHTML = w.join('<br>');
+}
+$('ptMeno').onclick = () => { $('ptVal').value = Math.max(0, (parseInt($('ptVal').value, 10) || 0) - 1); aggiornaPunti(); };
+$('ptPiu').onclick = () => { $('ptVal').value = Math.min(72, (parseInt($('ptVal').value, 10) || 0) + 1); aggiornaPunti(); };
+$('ptVal').oninput = aggiornaPunti;
+$('ptSalva').onclick = () => {
+  const P = parseInt($('ptVal').value, 10), r = daPunti(P);
+  SIM = { data: oggiIt(), gara: 'Gara di oggi', circolo: r.c.sigla || r.c.circolo, solo_punti: true, stbl: P, ags: r.ags, sd: r.sd, idxN: r.idxN, idxV: idx, cr: r.t.cr, sr: r.t.sr };
+  try { LS.setItem('golfpers.sim', JSON.stringify(SIM)); } catch (e) {}
+  pick(); mostraSimOggi(); vai('oggi');
+};
+aggiornaPunti();
+const _cs = mostraCampoSim; mostraCampoSim = () => { _cs(); aggiornaPunti(); };
 $('btnFoto').onclick = () => { if (pronto()) $('fileFoto').click(); };
 function toJpeg(file, max = 1600) {
   return new Promise((res, rej) => { const img = new Image();
@@ -575,7 +654,8 @@ async function leggiFoto(b64) {
   const p = `Sei un lettore di schede score di golf italiane compilate a mano. Il titolare è ${D.giocatore.nome}: il suo nome è in alto sulla scheda; usa SOLO la sua riga o colonna di colpi, non quella del marcatore.
 Campo: ${c.sigla} ${c.percorso}. Par per buca: ${c.h.map(x => x[0]).join(',')}. Handicap di buca: ${c.h.map(x => x[1]).join(',')}.
 Leggi per ognuna delle 18 buche i colpi lordi. Buca vuota, con X, -, / o cancellata = null. Metti in "incerte" i numeri delle buche con cifra dubbia.
-Rispondi solo con JSON: {"giocatore":str,"colpi":[18 interi o null],"totale_scritto":int|null,"incerte":[int]}`;
+Riporta anche, se scritti, il totale colpi e il totale punti Stableford del titolare.
+Rispondi solo con JSON: {"giocatore":str,"colpi":[18 interi o null],"totale_scritto":int|null,"stbl_scritto":int|null,"incerte":[int]}`;
   let ultimo = '';
   for (const m of D.ai.models) {
     try {
@@ -600,12 +680,15 @@ $('fileFoto').onchange = async ev => {
     const j = await leggiFoto(await toJpeg(f));
     const colpi = j.colpi.slice(0, 18).map(x => Number.isInteger(x) && x > 0 && x < 20 ? x : null);
     const tot = colpi.reduce((a, b) => a + (b || 0), 0);
-    nuovaSim(colpi, { incerte: j.incerte || [], nota: j.totale_scritto && j.totale_scritto !== tot ? `Attenzione: sulla scheda il totale scritto è ${j.totale_scritto}, quello letto è ${tot}.` : '' });
+    nuovaSim(colpi, { incerte: j.incerte || [], tot_scritto: j.totale_scritto || null, stbl_scritto: j.stbl_scritto || null, nome_letto: j.giocatore || '' });
   } catch (e) { alert('Non sono riuscito a leggere la foto (' + e.message + '). Riprova con più luce, oppure inserisci i colpi a mano.'); }
   finally { clearInterval(tk); busy.style.display = 'none'; }
 };
 mostraScore(scIdx);
-if (SIM) msg($('pend'), `Simulazione di oggi: index ${f1(SIM.idxN)}`, `Differenziale stimato ${f1(SIM.sd)} (senza PCC). Resta finché non arriva il risultato ufficiale.`);
+function mostraSimOggi() { if (!SIM) { return; }
+  msg($('pend'), `Simulazione di oggi: index ${f1(SIM.idxN)}`, `${SIM.solo_punti ? SIM.stbl + ' punti' : 'Score buca per buca'} a ${nomeBreve(SIM.circolo)}: differenziale ${f1(SIM.sd)}. È una stima (senza la correzione del giorno, PCC): resta finché non arriva il risultato ufficiale. <button class="lnk" style="display:inline;margin:0" id="simDel2">Cancella</button>`);
+  const d2 = $('simDel2'); if (d2) d2.onclick = () => { SIM = null; try { LS.removeItem('golfpers.sim'); } catch (e) {} $('pend').hidden = true; pick(); }; }
+mostraSimOggi();
 if (D.fonte === 'gesgolf') $('idxWhen').textContent = `all'ultima gara a Modena del ${ult.d.slice(0, 5)} · dalle classifiche GesGolf`;
 }
 
