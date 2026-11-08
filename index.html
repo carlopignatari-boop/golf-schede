@@ -632,9 +632,9 @@ function aggiornaPunti() {
   const w = controlliPunti(P, r), bad = !Number.isInteger(P) || P < 0 || P > 72;
   $('ptSalva').disabled = bad;
   const dv = bad ? 0 : r1(r.idxN - idx);
-  $('ptRes').innerHTML = bad ? '—' : `<div class="r"><span>Handicap di gioco</span><b>${r.ch}</b></div><div class="r"><span>Differenziale</span><b>${f1(r.sd)}</b></div>
+  $('ptRes').innerHTML = bad ? '—' : `<div class="r"><span>Handicap di gioco oggi</span><b>${r.ch}</b></div><div class="r"><span>Differenziale</span><b>${f1(r.sd)}</b></div>
     <div class="r"><span>Nuovo index</span><b style="color:${dv < 0 ? 'var(--green)' : dv > 0 ? 'var(--warm)' : 'var(--text)'}">${f1(r.idxN)}</b></div>
-    <div class="r"><span>Nuovo handicap di gioco a ${nomeBreve(r.c.sigla || r.c.circolo)}</span><b>${r.chN}${r.chN !== r.ch ? ` <small style="font-weight:400;color:var(--muted)">(era ${r.ch})</small>` : ''}</b></div>
+    <div class="r"><span>Nuovo handicap di gioco a ${nomeBreve(r.c.sigla || r.c.circolo)}</span><b style="text-align:right;white-space:nowrap">${r.chN}${r.chN !== r.ch ? `<br><small style="font-weight:400;color:var(--muted);font-size:.75em">era ${r.ch}</small>` : ''}</b></div>
     <div class="sub" style="margin-top:4px">${dv < 0 ? 'scendi di ' + f1(-dv) : dv > 0 ? 'sali di ' + f1(dv) : 'resta uguale'} · 36 punti = hai giocato secondo il tuo handicap</div>`;
   $('ptWarn').hidden = !w.length; $('ptWarn').innerHTML = w.join('<br>');
 }
