@@ -161,6 +161,7 @@ nav.tabs button.on{color:var(--green)}
 .fonte{font-size:15px;color:var(--muted);margin-top:4px}
 .k.edit{border:1px dashed color-mix(in srgb,var(--gold) 60%,transparent);min-width:48px;cursor:pointer;font:inherit;font-weight:600;color:var(--text)}
 .k.edit.dub{border:2px solid var(--gold)}
+button.k{background:transparent;-webkit-appearance:none;appearance:none}  /* par e buche vuote: niente fondo bianco del pulsante */
 .busy{display:none;margin-top:16px;font-size:17px;color:var(--gold)}
 .camp{display:flex;justify-content:space-between;align-items:center;gap:10px;width:100%;text-align:left;margin:0 0 18px;padding:12px 14px;border-radius:12px;background:var(--elev);border:1px solid var(--line);font-size:16px}
 .camp small{display:block;color:var(--muted);font-size:14px}
@@ -357,6 +358,28 @@ nav.tabs button.on{color:var(--green)}
 </div>
 <script>
 const $ = id => document.getElementById(id);
+// ── 4 palle la migliore: validità e punteggio individuale ai fini handicap ──
+// Regole dell'Handicap Italia 5.10 e Guida Sintetica WHS FIG 1.4: coppia >= 42 punti, risultato del giocatore
+// che conta in almeno 9 buche, individuale ricalcolato >= 36. Buca che conta = stessi punti; che non conta = 1,5
+// (1 se il compagno ha fatto 1); coppia a 0 = 0 per entrambi; pari punti = contano entrambi.
+// Somma + (Course Handicap − handicap di gioco), arrotondata per difetto. AGS = par + CH + 36 − individuale.
+const recPH = (ph, si) => ph >= 0 ? Math.floor(ph / 18) + (si <= ph % 18 ? 1 : 0) : (si > 18 + ph ? -1 : 0);
+function quattroPalle(h, cA, cB, chA, phA, phB) {
+  const pt = (c, x, ph) => c == null ? 0 : Math.max(0, x.p + recPH(ph, x.si) + 2 - c);
+  let squadra = 0, contate = 0, somma = 0;
+  const buche = h.map((x, k) => {
+    const a = pt(cA[k], x, phA), b = pt(cB[k], x, phB), t = Math.max(a, b);
+    const conta = t === 0 || a >= b, v = t === 0 ? 0 : a >= b ? a : b === 1 ? 1 : 1.5;
+    squadra += t; somma += v; if (conta) contate++;
+    return { a, b, t, v, conta };
+  });
+  const indiv = Math.floor(somma + chA - phA);
+  const motivo = squadra < 42 ? `la coppia ha fatto ${squadra} punti, ne servono almeno 42`
+    : contate < 9 ? `il tuo risultato conta per la coppia in ${contate} buche, ne servono almeno 9`
+    : indiv < 36 ? `il tuo punteggio individuale ricalcolato è ${indiv} punti, ne servono almeno 36` : '';
+  return { squadra, contate, indiv, valida: !motivo, motivo, buche };
+}
+const ph4p = ch => Math.round(ch * 0.85);  // in Italia nella 4 palle stableford si gioca con l'85% del Course Handicap
 function init(D) {
 const r1 = x => Math.round((x + 1e-9) * 10) / 10, f1 = x => x == null ? '—' : x.toFixed(1).replace('.', ',');
 const TEE_COL = {BIANCO:'#f4f4f0',GIALLO:'#f2cf3e',VERDE:'#3c9a5f',BLU:'#3d6fd1',ROSSO:'#d84a3a',ARANCIO:'#f08a2c',NERO:'#111',ORO:'#c9a43b'};
@@ -504,7 +527,7 @@ $('btnOk').onclick = () => { campo = { ...tmp }; if ($('chkDef').checked) salva(
 
 // ── cartellino orizzontale ──
 function calc(g) {
-  const sc = g.buche_score, ch = Math.round(g.idxV * g.sr / 113 + g.cr - sc.reduce((a, h) => a + h.p, 0));
+  const sc = g.buche_score, ch = g.ph != null ? g.ph : Math.round(g.idxV * g.sr / 113 + g.cr - sc.reduce((a, h) => a + h.p, 0));
   const rec = h => Math.floor(ch / 18) + (h.si <= ch % 18 ? 1 : 0) + (ch < 0 && h.si > 18 + ch ? -1 : 0);
   const pt = h => h.c == null ? 0 : Math.max(0, h.p + rec(h) + 2 - h.c);
   const cl = h => { if (h.c == null) return ''; const d = h.c - h.p; return d <= -2 ? 'ea' : d === -1 ? 'bi' : d === 0 ? '' : d === 1 ? 'bo' : d === 2 ? 'db' : 'tr'; };
@@ -527,16 +550,28 @@ function mostraScore(i, sim) {
     const w = [], vuote = sc.filter(h => h.c == null).map(h => h.b), strane = sc.filter(h => h.c != null && (h.c < h.p - 2 || h.c > h.p + 8)).map(h => h.b);
     const tot = S(sc, h => h.c), P = S(sc, pt);
     if (vuote.length === sc.length) w.push('Tocca ogni buca e scrivi i colpi.');
-    else if (vuote.length) w.push(`Buche senza colpi: ${vuote.join(', ')}. Contano come doppio bogey netto (0 punti): se le hai finite, scrivi i colpi.`);
+    else if (vuote.length) w.push(g.qp ? `Buche senza colpi: ${vuote.join(', ')}. Nella 4 palle è normale se ha chiuso il compagno; se le hai finite, scrivi i colpi.` : `Buche senza colpi: ${vuote.join(', ')}. Contano come doppio bogey netto (0 punti): se le hai finite, scrivi i colpi.`);
     if (strane.length) w.push(`Numeri insoliti alle buche ${strane.join(', ')}: controlla.`);
     if ((g.incerte || []).length) w.push(`Lettura incerta alle buche ${g.incerte.join(', ')} (bordate in giallo).`);
     if (g.tot_scritto && g.tot_scritto !== tot && !vuote.length) w.push(`Sulla scheda il totale scritto è ${g.tot_scritto}, la somma delle buche è ${tot}.`);
     if (g.stbl_scritto && g.stbl_scritto !== P) w.push(`Sulla scheda i punti scritti sono ${g.stbl_scritto}, il calcolo dà ${P}: controlla le buche.`);
     if (g.nome_letto && !g.nome_letto.toUpperCase().includes(D.giocatore.nome.split(' ').slice(-1)[0].toUpperCase())) w.push(`Sulla scheda ho letto il nome «${g.nome_letto}»: è la tua?`);
-    if (vuote.length < sc.length && P > 45) w.push(`${P} punti è un risultato eccezionale: controlla i colpi.`);
+    if (vuote.length < sc.length && P > 45 && !g.qp) w.push(`${P} punti è un risultato eccezionale: controlla i colpi.`);
+    if (g.qp) { const q = g.qp.ris;
+      w.push(`Gara 4 palle con ${g.qp.nome || 'il compagno'} (handicap di gioco ${g.qp.ph}): ${q.squadra} punti di squadra.`);
+      w.push(q.valida ? `Valida per l'handicap: il tuo risultato conta in ${q.contate} buche, punteggio individuale ${q.indiv} punti → AGS ${g.ags}, differenziale ${f1(g.sd)}.`
+        : `Non valida per l'handicap: ${q.motivo}. Non entra nel calcolo dell'index.`);
+      if (g.qp.ph_scritto != null && g.qp.ph_scritto !== g.ph) w.push(`Sulla scheda il tuo handicap di gioco è ${g.qp.ph_scritto}, con l'85% del tuo handicap viene ${g.ph}: controlla.`);
+      w.push(`<button class="lnk" style="display:inline;margin:0" id="qpEdit">Correggi i colpi del compagno</button>`); }
     $('simTxt').innerHTML = 'Tocca un numero per correggerlo. Quando arriva il risultato ufficiale, prende il suo posto.' + (w.length ? `<div class="warn">${w.join('<br>')}</div>` : '');
+    if (g.qp) $('qpEdit').onclick = () => {
+      const v = prompt(`Colpi di ${g.qp.nome || 'del compagno'} buca per buca, separati da virgola (vuoto = buca non finita):`, g.qp.colpi.map(x => x ?? '').join(','));
+      if (v === null) return; const a = v.split(',').map(x => parseInt(x, 10));
+      if (a.length !== 18) { alert('Servono 18 valori, uno per buca.'); return; }
+      const p2 = prompt(`Handicap di gioco di ${g.qp.nome || 'del compagno'} in questa gara:`, g.qp.ph); const n2 = parseInt(p2, 10);
+      SIM.qp.colpi = a.map(x => x > 0 && x < 20 ? x : null); if (Number.isInteger(n2)) SIM.qp.ph = n2; ricalcolaSim(); mostraScore(-1); };
   }
-  $('scTots').innerHTML = [['Punti', S(sc, pt)], ['Colpi', S(sc, h => h.c)], ['Differenziale', f1(g.sd ?? g.sd_est)], ['Nuovo index', f1(g.idxN)]].concat(g.chN != null ? [['Nuovo handicap di gioco', g.chN]] : [])
+  $('scTots').innerHTML = (g.qp ? [['Punti di squadra', g.qp.ris.squadra]] : []).concat([['Punti', S(sc, pt)], ['Colpi', S(sc, h => h.c)], ['Differenziale', f1(g.sd ?? g.sd_est)], ['Nuovo index', f1(g.idxN)]]).concat(g.chN != null ? [['Nuovo handicap di gioco', g.chN]] : [])
     .map(([l, v]) => `<div class="card"><div class="label">${l}</div><div class="mid num">${v}</div></div>`).join('');
   const row = h => `<div class="hb-r"><span class="b">${h.b}</span><span>${h.p}</span><span>${sim ? `<button class="k edit ${cl(h)}${(g.incerte || []).includes(h.b) ? ' dub' : ''}" data-b="${h.b}">${h.c ?? '–'}</button>` : `<span class="k ${cl(h)}">${h.c ?? '–'}</span>`}</span><span class="pt">${h.c == null ? '–' : pt(h)}</span></div>`;
   const tot = (l, a) => `<div class="hb-r t"><span class="b">${l}</span><span>${S(a, h => h.p)}</span><span>${S(a, h => h.c)}</span><span class="pt">${S(a, pt)}</span></div>`;
@@ -587,6 +622,15 @@ const _ok = $('btnOk').onclick; $('btnOk').onclick = () => { _ok(); mostraCampoS
 // handicap di gioco con un index dato, sul campo della simulazione (di solito Modena)
 function chCon(index) { const { c, t } = campoSim(); return c.buche === 9 ? null : Math.round(index * t.sr / 113 + t.cr - c.par); }
 function ricalcolaSim() {
+  if (SIM.qp) {  // 4 palle: vale solo per il titolare della scheda e solo se valida
+    const sc = SIM.buche_score, ch = Math.round(SIM.idxV * SIM.sr / 113 + SIM.cr - sc.reduce((a, h) => a + h.p, 0));
+    SIM.ph = ph4p(ch); const q = quattroPalle(sc, sc.map(h => h.c), SIM.qp.colpi, ch, SIM.ph, SIM.qp.ph); SIM.qp.ris = q;
+    if (q.valida) { SIM.ags = sc.reduce((a, h) => a + h.p, 0) + ch + 36 - q.indiv; SIM.sd = r1((SIM.ags - SIM.cr - (SIM.pcc || 0)) * 113 / SIM.sr); SIM.idxN = nuovoIdx(SIM.sd); }
+    else { SIM.ags = null; SIM.sd = null; SIM.idxN = idx; }
+    SIM.chN = chCon(SIM.idxN);
+    try { LS.setItem('golfpers.sim', JSON.stringify(SIM)); } catch (e) {}
+    return;
+  }
   const { sc, rec } = calc(SIM);
   SIM.ags = sc.reduce((a, h) => a + (h.c ? Math.min(h.c, h.p + 2 + rec(h)) : h.p + 2 + rec(h)), 0);
   SIM.sd = r1((SIM.ags - SIM.cr - (SIM.pcc || 0)) * 113 / SIM.sr); SIM.idxN = nuovoIdx(SIM.sd); SIM.chN = chCon(SIM.idxN);
@@ -663,7 +707,9 @@ async function leggiFoto(b64) {
 Campo: ${c.sigla} ${c.percorso}. Par per buca: ${c.h.map(x => x[0]).join(',')}. Handicap di buca: ${c.h.map(x => x[1]).join(',')}.
 Leggi per ognuna delle 18 buche i colpi lordi. Buca vuota, con X, -, / o cancellata = null. Metti in "incerte" i numeri delle buche con cifra dubbia.
 Riporta anche, se scritti, il totale colpi e il totale punti Stableford del titolare.
-Rispondi solo con JSON: {"giocatore":str,"colpi":[18 interi o null],"totale_scritto":int|null,"stbl_scritto":int|null,"incerte":[int]}`;
+Capisci se è una gara a coppie 4 palle la migliore (four-ball): la scheda riporta due giocatori della stessa squadra, spesso con la dicitura 4 palle, 4PLM, coppia o squadra. Il marcatore NON è il compagno.
+Se è una 4 palle: "quattro_palle": true; riporta nome, colpi lordi per buca (null se non finita) e handicap di gioco scritto del compagno di squadra, e l'handicap di gioco scritto del titolare. Altrimenti "quattro_palle": false e campi del compagno null.
+Rispondi solo con JSON: {"giocatore":str,"colpi":[18 interi o null],"totale_scritto":int|null,"stbl_scritto":int|null,"incerte":[int],"quattro_palle":bool,"hcp_titolare":int|null,"compagno":str|null,"colpi_compagno":[18 interi o null]|null,"hcp_compagno":int|null}`;
   let ultimo = '';
   for (const m of D.ai.models) {
     try {
@@ -688,13 +734,22 @@ $('fileFoto').onchange = async ev => {
     const j = await leggiFoto(await toJpeg(f));
     const colpi = j.colpi.slice(0, 18).map(x => Number.isInteger(x) && x > 0 && x < 20 ? x : null);
     const tot = colpi.reduce((a, b) => a + (b || 0), 0);
-    nuovaSim(colpi, { incerte: j.incerte || [], tot_scritto: j.totale_scritto || null, stbl_scritto: j.stbl_scritto || null, nome_letto: j.giocatore || '' });
+    const extra = { incerte: j.incerte || [], tot_scritto: j.totale_scritto || null, stbl_scritto: j.stbl_scritto || null, nome_letto: j.giocatore || '' };
+    if (j.quattro_palle === true && Array.isArray(j.colpi_compagno) && j.colpi_compagno.length >= 18) {
+      let ph2 = Number.isInteger(j.hcp_compagno) ? j.hcp_compagno : parseInt(prompt(`Gara 4 palle con ${j.compagno || 'un compagno'}: non leggo il suo handicap di gioco. Scrivilo:`, ''), 10);
+      if (Number.isInteger(ph2)) {
+        extra.qp = { nome: j.compagno || '', ph: ph2, ph_scritto: Number.isInteger(j.hcp_titolare) ? j.hcp_titolare : null,
+          colpi: j.colpi_compagno.slice(0, 18).map(x => Number.isInteger(x) && x > 0 && x < 20 ? x : null) };
+        extra.gara = 'Gara di oggi · 4 palle'; extra.stbl_scritto = null;  // sulla scheda 4 palle i punti scritti sono di squadra
+      } else alert('Senza l’handicap di gioco del compagno non posso calcolare la 4 palle: tratto lo score come individuale.');
+    }
+    nuovaSim(colpi, extra);
   } catch (e) { alert('Non sono riuscito a leggere la foto (' + e.message + '). Riprova con più luce, oppure inserisci i colpi a mano.'); }
   finally { clearInterval(tk); busy.style.display = 'none'; }
 };
 mostraScore(scIdx);
 function mostraSimOggi() { if (!SIM) { return; }
-  msg($('pend'), `Simulazione di oggi: index ${f1(SIM.idxN)}${SIM.chN != null ? ' · handicap di gioco ' + SIM.chN : ''}`, `${SIM.solo_punti ? SIM.stbl + ' punti' : 'Score buca per buca'} a ${nomeBreve(SIM.circolo)}: differenziale ${f1(SIM.sd)}. ${INDICATIVA ? 'È una stima indicativa: mancano gare giocate in altri circoli' : 'È una stima (senza la correzione del giorno, PCC)'}: resta finché non arriva il risultato ufficiale. <button class="lnk" style="display:inline;margin:0" id="simDel2">Cancella</button>`);
+  msg($('pend'), `Simulazione di oggi: index ${f1(SIM.idxN)}${SIM.chN != null ? ' · handicap di gioco ' + SIM.chN : ''}`, `${SIM.qp ? `4 palle con ${SIM.qp.nome || 'il compagno'}, ${SIM.qp.ris.squadra} punti di squadra` : SIM.solo_punti ? SIM.stbl + ' punti' : 'Score buca per buca'} a ${nomeBreve(SIM.circolo)}: ${SIM.qp && !SIM.qp.ris.valida ? `non valida per l'handicap (${SIM.qp.ris.motivo}), index invariato` : 'differenziale ' + f1(SIM.sd)}. ${INDICATIVA ? 'È una stima indicativa: mancano gare giocate in altri circoli' : 'È una stima (senza la correzione del giorno, PCC)'}: resta finché non arriva il risultato ufficiale. <button class="lnk" style="display:inline;margin:0" id="simDel2">Cancella</button>`);
   const d2 = $('simDel2'); if (d2) d2.onclick = () => { SIM = null; try { LS.removeItem('golfpers.sim'); } catch (e) {} $('pend').hidden = true; pick(); }; }
 mostraSimOggi();
 if (D.fonte === 'gesgolf') $('idxWhen').textContent = `all'ultima gara del ${ult.d.slice(0, 5)} · dalle classifiche GesGolf`;
